@@ -3,9 +3,10 @@ from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm
 
 from django.contrib.auth import authenticate,login as auth_login, logout
+from django.contrib import messages
 
 # Create your views here.
-def home(request):
+def dashboard(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -13,9 +14,9 @@ def home(request):
         
         result = "/opy/pavan.py --grouptar {group} -nexpose AGILE_GROUP --nexposeaddr  'file.csv' --iwtype sw --username {user} --password {pwd}".format(group=group_address, user=username,pwd=password)
         print(result)
-        return redirect('home')
+        return redirect('dashboard')
     
-    return render(request, 'accounts/home.html')
+    return render(request, 'accounts/dashboard.html')
 
 def register(request):
     form = UserCreationForm()
@@ -40,7 +41,7 @@ def login(request):
         
         if user is not None:
             auth_login(request, user)
-            return redirect('home')
+            return redirect('dashboard')
     context = {}
     return render(request ,'accounts/login.html', context)
 
