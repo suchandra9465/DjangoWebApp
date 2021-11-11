@@ -1,9 +1,11 @@
+
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm
 
 from django.contrib.auth import authenticate,login as auth_login, logout
-from django.contrib import messages
+from django.contrib import messages,auth
+from django.contrib.auth.models import User
 
 # Create your views here.
 def dashboard(request):
@@ -11,7 +13,7 @@ def dashboard(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         group_address = request.POST.get('address_group_name')
-        
+        messages.success(request, 'Job has launched successfully',extra_tags='alert')
         result = "/opy/pavan.py --grouptar {group} -nexpose AGILE_GROUP --nexposeaddr  'file.csv' --iwtype sw --username {user} --password {pwd}".format(group=group_address, user=username,pwd=password)
         print(result)
         return redirect('dashboard')
@@ -19,17 +21,21 @@ def dashboard(request):
     return render(request, 'accounts/dashboard.html')
 
 def register(request):
-    form = UserCreationForm()
-    print('checking')
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            print('valid')
-            form.save()
-            return redirect('login')
-            
-    context = {'form':form}
-    return render(request,'accounts/register.html',context)
+    if request.method == "POST":
+        if request.POST['password1'] == request.POST['password2']:
+            try:
+                User.objects.get(username = request.POST['username'])
+                return render (request,'accounts/signup.html', {'error':'Username is already taken!'})
+            except User.DoesNotExist:
+                user = User.objects.create_user(request.POST['username'],password=request.POST['password1'])
+                auth.login(request,user)
+                # messages.success(request, "Registration successful." )
+                return redirect('login')
+        else:
+            # messages.error(request, "Unsuccessful registration. Invalid information.")
+            return render (request,'accounts/signup.html', {'error':'Password does not match!'})
+    else:
+        return render(request,'accounts/signup.html')
 
 def login(request):
     
@@ -48,3 +54,5 @@ def login(request):
 def logoutUser(request):
     logout(request)
     return redirect('login')
+    # return redirect('dashboard')
+    
