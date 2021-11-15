@@ -21,11 +21,11 @@ def migrations(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        group_address = request.POST.get('address_group_name')
+        group_address = request.POST.get('device_group_template')
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         result = "/opy/pavan.py --grouptar {group} -nexpose AGILE_GROUP --nexposeaddr  'file.csv' --iwtype sw --username {user} --password {pwd}".format(group=group_address, user=username,pwd=password)
         print(result)
-        return redirect('dashboard')
+        return redirect('migrations')
     
     return render(request, 'home/migration_form.html')
 
@@ -38,6 +38,7 @@ def dumpConfig(request):
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_address, user=username,pwd=password)
         print(result)
+        return redirect('dumpconfig')
          
     
     return render(request, 'home/dumpConfig_form.html')
@@ -51,6 +52,6 @@ def ruleSearch(request):
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         result = "/opt/scripts/git/m65/m5.py -p 1.2.3.4 or -P 5.6.7.8 –username {user} –password {pwd} –rulematch {rule}".format(pwd=password, user=username,rule=rule_match_pattern)
         print(result)
-        return redirect('dashboard')
+        return redirect('rulesearch')
     
     return render(request, 'home/ruleSearch_form.html')
