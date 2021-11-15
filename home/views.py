@@ -47,9 +47,9 @@ def ruleSearch(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        group_address = request.POST.get('address_group_name')
+        rule_match_pattern = request.POST.get('rule_match_pattern')
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
-        result = "/opy/pavan.py --grouptar {group} -nexpose AGILE_GROUP --nexposeaddr  'file.csv' --iwtype sw --username {user} --password {pwd}".format(group=group_address, user=username,pwd=password)
+        result = "/opt/scripts/git/m65/m5.py -p 1.2.3.4 or -P 5.6.7.8 –username {user} –password {pwd} –rulematch {rule}".format(pwd=password, user=username,rule=rule_match_pattern)
         print(result)
         return redirect('dashboard')
     
