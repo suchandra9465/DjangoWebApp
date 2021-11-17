@@ -26,12 +26,29 @@ def history(request):
 @login_required
 def bulkaddress(request):
     if request.method == 'POST':
+        target_ip = request.POST.get('target_ip')
         username = request.POST.get('username')
         password = request.POST.get('password')
-        group_address = request.POST.get('address_group_name')
+        group_name = request.POST.get('address_group_name')
+        firewallType = request.POST.get('firewall_type')
+        comment = request.POST.get('comment')
+        context = request.POST.get('context')
+        addressObject = request.POST.get('about')
+        readOnly = request.POST.get('readonly')
+        if readOnly == 'on':
+            readOnly = True
+        else:
+            readOnly = False
+            
+            
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
-        result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_address, user=username,pwd=password)
+        result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_name, user=username,pwd=password)
         print(result)
+        
+        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly)
+        data_entry.save()
+        
+        
         return redirect('bulkaddress')
     
     return render(request, 'home/bulkaddress_form.html')
