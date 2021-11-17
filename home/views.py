@@ -1,10 +1,26 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages,auth
 from django.contrib.auth.decorators import login_required
+from .forms import TestForm
+from .models import SuperModel
+from django.utils import timezone
 
 # Create your views here.
 @login_required
 def dashboard(request):
+    # if request.method == 'POST':
+    #     username = request.POST.get('username')
+    #     password = request.POST.get('password')
+    #     group_address = request.POST.get('address_group_name')
+    #     messages.success(request, 'Job has launched successfully',extra_tags='alert')
+    #     result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_address, user=username,pwd=password)
+    #     print(result)
+    # return redirect('bulkaddress')
+    
+    return render(request, 'home/dashboard.html')
+
+@login_required
+def bulkaddress(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -12,9 +28,9 @@ def dashboard(request):
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_address, user=username,pwd=password)
         print(result)
-        return redirect('dashboard')
+        return redirect('bulkaddress')
     
-    return render(request, 'home/dashboard.html')
+    return render(request, 'home/bulkaddress_form.html')
 
 @login_required
 def migrations(request):
@@ -32,14 +48,20 @@ def migrations(request):
 @login_required
 def dumpConfig(request):
     if request.method == 'POST':
+        # current_user = request.user
+        # print(current_user.username)
         username = request.POST.get('username')
         password = request.POST.get('password')
         group_address = request.POST.get('address_group_name')
+        debug_enable = request.POST.get('comments')
+        print(username,password,group_address,debug_enable)
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_address, user=username,pwd=password)
         print(result)
+        
+        # blob_object = SuperModel(createdBy=request.user,createdAt=timezone.now(),JobType="migrations",status="success")
+        # blob_object.save()
         return redirect('dumpconfig')
-         
     
     return render(request, 'home/dumpConfig_form.html')
 

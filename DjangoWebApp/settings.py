@@ -111,6 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 USE_I18N = True
 
