@@ -82,8 +82,11 @@ def dumpConfig(request):
         password = request.POST.get('password')
         target_ip = request.POST.get('target_ip')
         debug_enable = request.POST.get('enableCheck')
-        
-        # print(username,password,target_ip,debug_enable,created_by,created_at)
+        if debug_enable == 'on':
+            debug_enable = True
+        else:
+            debug_enable = False
+        print(username,password,target_ip,debug_enable)
         
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=target_ip, user=username,pwd=password)
