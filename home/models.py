@@ -12,7 +12,7 @@ from django.contrib.auth import get_user_model
 # completedAt
 User = get_user_model()
 
-class SuperModel(models.Model):
+class large(models.Model):
     createdBy = models.ForeignKey(User,on_delete=models.CASCADE,related_name='jobCreatedBy')
     createdAt = models.DateTimeField(auto_now_add=True)
     jobType = models.CharField(max_length=100)
