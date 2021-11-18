@@ -7,21 +7,35 @@ from django.utils import timezone
 # Create your views here.
 @login_required
 def dashboard(request):
-    # if request.method == 'POST':
-    #     username = request.POST.get('username')
-    #     password = request.POST.get('password')
-    #     group_address = request.POST.get('address_group_name')
-    #     messages.success(request, 'Job has launched successfully',extra_tags='alert')
-    #     result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_address, user=username,pwd=password)
-    #     print(result)
-    # return redirect('bulkaddress')
+    context = {}
+    form_data = large.objects.all().order_by('-id')[:5]
+    bulkaddress_no = large.objects.filter(jobType='bulkaddress').count()
+    dumpConfig_no = large.objects.filter(jobType='dumpConfig').count()
+    migrations_no = large.objects.filter(jobType='migrations').count()
+    ruleSearch_no = large.objects.filter(jobType='ruleSearch').count()
+    print(dumpConfig_no)
+    context['form_data'] = form_data
+    context['bulkaddress_no'] = bulkaddress_no
+    context['dumpConfig_no'] = dumpConfig_no
+    context['migrations_no'] = migrations_no
+    context['ruleSearch_no'] = ruleSearch_no
     
-    return render(request, 'home/dashboard.html')
+    
+    print(bulkaddress_no)
+    # print(context.form_data(0).createdAt)
+    
+    return render(request, 'home/dashboard.html',context)
 
 @login_required
 def history(request):
     
-    return render(request, 'home/history.html')
+    
+    context = {}
+    form_data = large.objects.all().order_by('-id')
+    context['form_data'] = form_data
+    
+    
+    return render(request, 'home/history.html', context)
 
 @login_required
 def bulkaddress(request):
@@ -119,12 +133,34 @@ def dumpConfig(request):
 @login_required
 def ruleSearch(request):
     if request.method == 'POST':
+        rule_match_pattern = request.POST.get('rule_match_pattern')
+        target_ip = request.POST.get('target_ip')
         username = request.POST.get('username')
         password = request.POST.get('password')
-        rule_match_pattern = request.POST.get('rule_match_pattern')
+        enableDebugOutput = request.POST.get('readonly')
+        if enableDebugOutput == 'on':
+            enableDebugOutput = True
+        else:
+            enableDebugOutput = False
+        doNotMatchAnyAddress = request.POST.get('remove_unused')
+        if doNotMatchAnyAddress == 'on':
+            doNotMatchAnyAddress = True
+        else:
+            doNotMatchAnyAddress = False
+        doNotMatchAnyService = request.POST.get('checkpoint')
+        if doNotMatchAnyService == 'on':
+            doNotMatchAnyService = True
+        else:
+            doNotMatchAnyService = False
+            
+            
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         result = "/opt/scripts/git/m65/m5.py -p 1.2.3.4 or -P 5.6.7.8 –username {user} –password {pwd} –rulematch {rule}".format(pwd=password, user=username,rule=rule_match_pattern)
         print(result)
+        
+        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="ruleSearch",username=username,password=password,targetID=target_ip,enableDebugOutput=enableDebugOutput,doNotMatchAnyAddress=doNotMatchAnyAddress,doNotMatchAnyService=doNotMatchAnyService  )
+        data_entry.save()
+        
         return redirect('rulesearch')
     
     return render(request, 'home/ruleSearch_form.html')
