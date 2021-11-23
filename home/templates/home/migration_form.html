@@ -8,7 +8,7 @@
                 <div class="max-w-3xl px-4 mx-auto sm:px-6 lg:px-8 xl:max-w-5xl xl:grid xl:grid-cols-3">
                   <div class="xl:col-span-2 xl:pr-8 xl:border-gray-200">
                      
-                        <form action="#" method="POST">
+                        <form action="#" method="POST" name="migration_form" onsubmit="return checking()">
                             {% csrf_token %}
                             <div class="shadow sm:rounded-md sm:overflow-hidden">
                               <div class="px-4 py-6 space-y-6 bg-white sm:p-6">
@@ -29,21 +29,21 @@
                                 <div class="grid grid-cols-6 gap-6">
                                   <div class="col-span-6">
                                     <label for="target_ip" class="block text-sm font-medium text-gray-700">Sonicwall IP Address</label>
-                                    <input type="text" name="target_ip" id="target_ip" autocomplete="given-name" class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <input type="text" name="target_ip" id="target_ip" autocomplete="given-name" class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                   </div>
                     
                                   <div class="col-span-6">
                                     <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                                    <input type="text" name="username" id="username"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <input type="text" name="username" id="username"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                   </div>
                                   <div class="col-span-6">
                                     <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                                    <input type="password" name="password" id="password"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <input type="password" name="password" id="password"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                   </div>
 
                                   <div class="col-span-6">
                                     <label for="device_group_template" class="block text-sm font-medium text-gray-700">Device Group Template Name</label>
-                                    <select id="device_group_template" name="device_group_template" autocomplete="firewall_type" class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <select id="device_group_template" name="device_group_template" autocomplete="firewall_type" class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                         <option>Dell-AMER-logging-profile</option>
                                         <option>Dell-Amer-logging-profile</option>
                                         <option>Dell-EMEA-logging-profile</option>
@@ -54,24 +54,24 @@
                                   
                                   <div class="col-span-6">
                                     <label for="logging_profile_name" class="block text-sm font-medium text-gray-700">Logging Profile Name</label>
-                                    <input type="text" name="logging_profile_name" id="logging_profile_name"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <input type="text" name="logging_profile_name" id="logging_profile_name"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                   </div>
 
                                   
                                   <div class="col-span-6">
                                     <label for="security_profile_name" class="block text-sm font-medium text-gray-700">Security Profile Name</label>
-                                    <input type="text" name="security_profile_name" id="security_profile_name"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <input type="text" name="security_profile_name" id="security_profile_name"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                   </div>
                                   
                                   <div class="col-span-6">
                                     <label for="interface_mappings" class="block text-sm font-medium text-gray-700">Interface Mappings</label>
-                                    <input type="text" name="interface_mappings" id="interface_mappings"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <input type="text" name="interface_mappings" id="interface_mappings"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                   </div>
                      
                     
                                   <div class="col-span-6 ">
                                     <label for="zone_mapping" class="block text-sm font-medium text-gray-700">Zone Mappings</label>
-                                    <textarea id="zone_mapping" name="zone_mapping" rows="3" class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                                    <textarea id="zone_mapping" name="zone_mapping" rows="3" class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required></textarea>
                                   </div>
                                   <div class="col-span-6">
                                   <fieldset class="space-y-5">
@@ -114,6 +114,70 @@
                                 </button>
                               </div>
                             </div>
+                            <script>
+    function checking() {
+        var target_ip = document.forms["migration_form"]["target_ip"];
+        var device_group_template = document.forms["migration_form"]["device_group_template"];
+        var username = document.forms["migration_form"]["username"];
+        var logging_profile_name = document.forms["migration_form"]["logging_profile_name"];
+        var password = document.forms["migration_form"]["Password"];
+        var security_profile_name = document.forms["migration_form"]["security_profile_name"];
+        var interface_mappings = document.forms["migration_form"]["interface_mappings"];
+        var zone_mapping = document.forms["migration_form"]["zone_mapping"];
+  
+        if (target_ip.value == "") {
+            window.alert("Please enter your IP Address.");
+            target_ip.focus();
+            return false;
+        }
+  
+        if (device_group_template.value == "") {
+            window.alert("Please select device group.");
+            device_group_template.focus();
+            return false;
+        }
+     
+        if (username.value == "") {
+            window.alert(
+              "Please enter username.");
+            username.focus();
+            return false;
+        }
+  
+        if (logging_profile_name.value == "") {
+            window.alert(
+              "Please enter logging profile name.");
+            logging_profile_name.focus();
+            return false;
+        }
+  
+        if (password.value == "") {
+            window.alert("Please enter your password");
+            password.focus();
+            return false;
+        }
+  
+        if (security_profile_name.value == "") {
+            window.alert("Please enter value.");
+            security_profile_name.focus();
+            return false;
+        }
+
+        if (interface_mappings.value == "") {
+            window.alert("Please enter interface mappings.");
+            interface_mappings.focus();
+            return false;
+        }
+
+        if (zone_mapping.value == "") {
+            window.alert("Please enter zone mapping.");
+            zone_mapping.focus();
+            return false;
+        }
+        window.alert("Job successfully submitted")
+        return true;
+    }
+</script>
                           </form>   
                    
                   </div>

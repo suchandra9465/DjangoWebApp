@@ -174,8 +174,10 @@
 
                                             <ul class="shadow-box">
 
-                                               {% for data in form_data%}
-                                               
+                                               {% for data in form_data %}
+
+                                          
+                                               {% if data.jobType == "ruleSearch"%}
 
                                                 <li class="relative border-b border-gray-200">
                                         
@@ -193,6 +195,8 @@
                                                             
                                                         </div>
                                                                     </button>
+
+                                                                    
                                         
                                                     <div class="relative overflow-hidden transition-all max-h-0 duration-700" style="" x-ref="container1" x-bind:style="selected == 2 ? 'max-height: 200px' : ''">
                                                         <table class="min-w-full divide-y divide-gray-200 border-gray-200">
@@ -205,21 +209,21 @@
                                                                     Target IP Address
                                                                 </td>
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                  192.168.2.1
+                                                                  {{ data.targetID }}
                                                                 </td>
 
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                                     Firewall Type
                                                                 </td>
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    Dell-AMER-logging-profile
+                                                                    {{ data.firewallType }}
                                                                 </td>
                                                               
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                                    Username
                                                                 </td>
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    Pavan
+                                                                    {{ data.username }}
                                                                 </td>
                                                                 
                                                               </tr>
@@ -227,24 +231,34 @@
                                                               <tr class="bg-gray-50">
                                                                 
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                                    Comment
+                                                                    Rule Match Pattern
                                                                 </td>
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                  Sample Comment
+                                                                  {{ data.ruleMatchPattern }}
                                                                 </td>
 
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                                  Context
+                                                                  Enable Debug Output
                                                                 </td>
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    Default Context
+                                                                    {{ data.enableDebugOutput }}
                                                                 </td>
                                                               
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                                   Address Objects
+                                                                   Do Not Match "any" Address
                                                                 </td>
                                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    List of address objects
+                                                                    {{ data.doNotMatchAnyAddress }}
+                                                                </td>
+
+                                                              </tr>
+
+                                                              <tr class="bg-gray-50">
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                   Do Not Match "any" Service
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.doNotMatchAnyService }}
                                                                 </td>
                                                                 
                                                               </tr>
@@ -252,8 +266,292 @@
                                                             </tbody>
                                                           </table>
                                                     </div>
-                                        
+                                                    
                                                 </li>
+                                                {% endif %}
+
+                                                {% if data.jobType == "migrations"%}
+
+                                                <li class="relative border-b border-gray-200">
+                                        
+                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== 2 ? selected = 2 : selected = null">
+                                                        <div class="flex items-end">
+                                                            <span class="font-medium float-left">
+                                                               Bulk Address Created at {{ data.createdAt }} | 
+                                                               <span class="font-medium text-gray-500">
+                                                                Executed by: {{data.createdBy}} | 
+                                                                <span class="font-medium text-green-600">
+                                                                    Status: Success			
+                                                                </span>
+                                                               </span>
+                                                            </span>
+                                                            
+                                                        </div>
+                                                                    </button>
+
+                                                                    
+                                        
+                                                    <div class="relative overflow-hidden transition-all max-h-0 duration-700" style="" x-ref="container1" x-bind:style="selected == 2 ? 'max-height: 200px' : ''">
+                                                        <table class="min-w-full divide-y divide-gray-200 border-gray-200">
+                                                           
+                                                            <tbody>
+                                                              
+                                                              <tr class="bg-gray-50">
+                                                                
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    Target IP Address
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                  {{ data.targetID }}
+                                                                </td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    Device Group Template Name
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.group_name }}
+                                                                </td>
+                                                              
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                   Username
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.username }}
+                                                                </td>
+                                                                
+                                                              </tr>
+
+                                                              <tr class="bg-gray-50">
+                                                                
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    Logging Profile Name
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                  {{ data.loggingProfileName }}
+                                                                </td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                  Security Profile Name
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.securityProfileName }}
+                                                                </td>
+                                                              
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                  Interface Mappings
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.interfaceMapping }}
+                                                                </td>
+
+                                                              </tr>
+
+                                                              <tr class="bg-gray-50">
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                  Zone Mappings
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.zoneMapping }}
+                                                                </td>
+                                                                
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                  Remove Dupes
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.removeDupes }}
+                                                                </td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                 Remove Unused
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.removeUnused }}
+                                                                </td>
+                                                              </tr>
+
+                                                              <tr>
+                                                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                 Checkpoint Expansion
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.checkPointExpansion }}
+                                                                </td>
+
+                                                              </tr>
+
+                                                   
+                                                            </tbody>
+                                                          </table>
+                                                    </div>
+                                                    
+                                                </li>
+                                               
+
+                                              {% endif %}
+
+                                              {% if data.jobType == "bulkaddress"%}
+
+                                                <li class="relative border-b border-gray-200">
+                                        
+                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== 2 ? selected = 2 : selected = null">
+                                                        <div class="flex items-end">
+                                                            <span class="font-medium float-left">
+                                                               Bulk Address Created at {{ data.createdAt }} | 
+                                                               <span class="font-medium text-gray-500">
+                                                                Executed by: {{data.createdBy}} | 
+                                                                <span class="font-medium text-green-600">
+                                                                    Status: Success			
+                                                                </span>
+                                                               </span>
+                                                            </span>
+                                                            
+                                                        </div>
+                                                                    </button>
+
+                                                                    
+                                        
+                                                    <div class="relative overflow-hidden transition-all max-h-0 duration-700" style="" x-ref="container1" x-bind:style="selected == 2 ? 'max-height: 200px' : ''">
+                                                        <table class="min-w-full divide-y divide-gray-200 border-gray-200">
+                                                           
+                                                            <tbody>
+                                                              
+                                                              <tr class="bg-gray-50">
+                                                                
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    Target IP Address
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                  {{ data.targetID }}
+                                                                </td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    Firewall Type
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.firewallType }}
+                                                                </td>
+                                                              
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                   Username
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.username }}
+                                                                </td>
+                                                                
+                                                              </tr>
+
+                                                              <tr class="bg-gray-50">
+                                                                
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    Address Group Name
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                  {{ data.group_name }}
+                                                                </td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                  Comment
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.comment }}
+                                                                </td>
+                                                              
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                  Context
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.context }}
+                                                                </td>
+
+                                                              </tr>
+
+                                                              <tr class="bg-gray-50">
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                  Address Objects
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.addressObject }}
+                                                                </td>
+                                                                
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                  Readonly
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.readOnly }}
+                                                                </td>
+                                                              </tr>
+
+                                                   
+                                                            </tbody>
+                                                          </table>
+                                                    </div>
+                                                    
+                                                </li>
+                                               
+
+                                              {% endif %}
+
+                                              {% if data.jobType == "dumpConfig"%}
+
+                                                <li class="relative border-b border-gray-200">
+                                        
+                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== 2 ? selected = 2 : selected = null">
+                                                        <div class="flex items-end">
+                                                            <span class="font-medium float-left">
+                                                               Bulk Address Created at {{ data.createdAt }} | 
+                                                               <span class="font-medium text-gray-500">
+                                                                Executed by: {{data.createdBy}} | 
+                                                                <span class="font-medium text-green-600">
+                                                                    Status: Success			
+                                                                </span>
+                                                               </span>
+                                                            </span>
+                                                            
+                                                        </div>
+                                                                    </button>
+
+                                                                    
+                                        
+                                                    <div class="relative overflow-hidden transition-all max-h-0 duration-700" style="" x-ref="container1" x-bind:style="selected == 2 ? 'max-height: 200px' : ''">
+                                                        <table class="min-w-full divide-y divide-gray-200 border-gray-200">
+                                                           
+                                                            <tbody>
+                                                              
+                                                              <tr class="bg-gray-50">
+                                                                
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    Target IP Address
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                  {{ data.targetID }}
+                                                                </td>
+                                                              
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                   Username
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {{ data.username }}
+                                                                </td>
+                                                                
+                                                              </tr>
+
+                                                              <tr class="bg-gray-50">
+                                                                
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    Enable Debug Output
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                  {{ data.enableDebugOutput }}
+                                                                </td>
+
+                                                              </tr>
+                                                   
+                                                            </tbody>
+                                                          </table>
+                                                    </div>
+                                                    
+                                                </li>
+                                                {% endif %}
 
                                               {% endfor %}                                                                                                                                      
                                         

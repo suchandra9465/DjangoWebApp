@@ -13,16 +13,12 @@ def dashboard(request):
     dumpConfig_no = large.objects.filter(jobType='dumpConfig').count()
     migrations_no = large.objects.filter(jobType='migrations').count()
     ruleSearch_no = large.objects.filter(jobType='ruleSearch').count()
-    print(dumpConfig_no)
+    
     context['form_data'] = form_data
     context['bulkaddress_no'] = bulkaddress_no
     context['dumpConfig_no'] = dumpConfig_no
     context['migrations_no'] = migrations_no
     context['ruleSearch_no'] = ruleSearch_no
-    
-    
-    print(bulkaddress_no)
-    # print(context.form_data(0).createdAt)
     
     return render(request, 'home/dashboard.html',context)
 
