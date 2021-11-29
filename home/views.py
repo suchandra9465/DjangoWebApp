@@ -3,6 +3,7 @@ from django.contrib import messages,auth
 from django.contrib.auth.decorators import login_required
 from .models import large
 from django.utils import timezone
+from home.functions.services import services
 
 # Create your views here.
 @login_required
@@ -35,6 +36,7 @@ def history(request):
 
 @login_required
 def bulkaddress(request):
+    options = {} 
     if request.method == 'POST':
         target_ip = request.POST.get('target_ip')
         username = request.POST.get('username')
@@ -49,10 +51,19 @@ def bulkaddress(request):
             readOnly = True
         else:
             readOnly = False
-            
-            
+                     
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
-        result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_name, user=username,pwd=password)
+        # result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_name, user=username,pwd=password)
+        options['target_ip'] = target_ip
+        options['username'] = username
+        options['password'] = password
+        options['group_name'] = group_name
+        options['firewallType'] = firewallType
+        options['comment'] = comment
+        options['context'] = context
+        options['addressObject'] = addressObject
+        options['readOnly'] = readOnly
+        result = services.service_nexpose(options)
         print(result)
         
         data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly)
