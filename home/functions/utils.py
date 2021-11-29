@@ -1,6 +1,6 @@
 import re
 import ipaddress
-from . import sonicwall
+from . import sonicwall as sw
 from . import sonicwall_utils
 from netaddr import IPSet, IPRange, IPNetwork
 
@@ -43,7 +43,7 @@ class utils:
                     for context in options.context:
                         contexts.append(context)
                 elif options.fwtype in ['palo', 'panorama', 'pano']:
-                    palo_xml=get_palo_config_https(target, 'config.panorama.temp', options.username, options.password)
+                    palo_xml=sonicwall_utils.get_palo_config_https(target, 'config.panorama.temp', options.username, options.password)
                     if palo_xml:
                         config = load_xml('', palo_xml)
                         palo_xml=None
