@@ -1,3 +1,22 @@
+def get_sw_config_https(host, outfile, username='admin', password='admin'):
+
+    log("!-- Retrieving SonicWall configuration file from host : " + host)
+    try:
+        sw_config = sw.get_config(host, username, password)
+        #log('\n',sw_config,'\n')
+        if outfile:
+            if sw_config:
+                if outfile:
+                    outfile=open(outfile,'w')
+                    #outfile.write(sw_config.text)
+                    outfile.close()
+        if not sw_config:
+            log("!-- Error retrieving configuration file")
+            return False
+    except:
+        return False
+    return sw_config.text
+
 def get_sonicwall_exp(target,options):
         
     # change options to params
@@ -30,24 +49,4 @@ def get_sonicwall_exp(target,options):
         tmpconfig=None  # free up memory
 
     return config
-
-
-def get_sw_config_https(host, outfile, username='admin', password='admin'):
-
-    log("!-- Retrieving SonicWall configuration file from host : " + host)
-    try:
-        sw_config = sw.get_config(host, username, password)
-        #log('\n',sw_config,'\n')
-        if outfile:
-            if sw_config:
-                if outfile:
-                    outfile=open(outfile,'w')
-                    #outfile.write(sw_config.text)
-                    outfile.close()
-        if not sw_config:
-            log("!-- Error retrieving configuration file")
-            return False
-    except:
-        return False
-    return sw_config.text
       
