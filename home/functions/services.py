@@ -1,4 +1,5 @@
 from . import utils
+from . import rulesearch_utils
 
 class services:
     config={}
@@ -36,3 +37,11 @@ class services:
             log(options.grouptargets)
             log('Creating bulk objects without target group targets specified')
             utils.bulk_create_addresses(None, self.config,self.params)
+
+    # todo: contexts 
+    def service_ruleSearch(self,options):
+        rulesearch_utils.find_matching_rules2(config, config['shared'], options.rulematch, contexts, options.rulemodify)
+        
+    # dunp config
+    
+    # sonicwall 14620

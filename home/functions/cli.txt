@@ -1,0 +1,27 @@
+This is the functionality we can focus on for now.
+
+Sonicwall Migrations – This is a two step process – May be able to consolidate this into 1
+
+-p IPadress 
+/opt/scripts/git/m65/m5.py -p 1.2.3.4 –usernname jeff_miller2 –password ‘password’ –devicegroup “Firewall_DeviceGroup” –logprofile “Dell-AMER-logging-profile” –securityprofile “Dell_Corp_Default” –mappings X0,ethernet1/1 X1,ethernet1/2 X2,ethernet1/3 X3,ethernet1/4 –zonemap LAN,LAN WAN,WAN [--remove-dupes] [--remove-unused [--expandcheckpoint]
+
+The items in square brackets are Boolean switches and would be checkboxes in html
+
+/opt/scripts/git/m65/m5.py –push –puship 1.2.3.4 –pushusername admin –pushpassword ‘password’ [–pushnotemplate] –pushfile filename.xml 
+
+This second step is used to push a converted Sonicwall policy to a Palo Alto Panorama device – Really no reason to have these as 2 separate steps.  I would need to check with what process OPs is currently using, but the pushnotemplate option is likely always going to be enabled or disabled.
+
+Route Searches 
+/opt/scripts/git/m65/m5.py –routesearch 1.1.1.1 2.2.2.2 3.3.0.0/16
+
+This feature is fairly straightforward, and only needs a list of IP addresses/networks to search for.  It reads in a local CSV to perform the search.
+
+Rule Searches
+/opt/scripts/git/m65/m5.py -p 1.2.3.4 or -P 5.6.7.8 –username ‘admjeff_miller2’ –password ‘password’ –rulematch 1.2.3.4,2.2.2.2,tcp/80 [-z] [-Z]
+
+The items in square brackets are Boolean switches and would be checkboxes in html 
+
+We already have a tool called Firemon to search for rules.  However, the useful of this is that I can do is that for matching rules, I can update them with a change, if needed.  An example of what I do here is to do a rule search for the IP address of a DNS server that is being decommissioned.  I can then update all the rules it found with the IP address of a new DNS server.
+
+Bulk Address Creation
+/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd 1.2.3.0/24,network1.dell.com 10.0.0.0/8,Network_-2.dell.com --fwtype sw65 --grouptargets 10.0.8.237 --username admin --password 'password' --comment 'Test'

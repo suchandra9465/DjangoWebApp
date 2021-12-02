@@ -63,8 +63,8 @@ def bulkaddress(request):
         options['context'] = context
         options['addressObject'] = addressObject
         options['readOnly'] = readOnly
-        result = services.service_nexpose(options)
-        print(result)
+        # result = services.service_nexpose(options)
+        # print(result)
         
         data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly)
         data_entry.save()
