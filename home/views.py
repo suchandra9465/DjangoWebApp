@@ -63,7 +63,8 @@ def bulkaddress(request):
         options['context'] = context
         options['addressObject'] = addressObject
         options['readOnly'] = readOnly
-        # result = services.service_nexpose(options)
+        # result = services()
+        # print(result.service_nexpose(options))
         # print(result)
         
         data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly)
@@ -76,6 +77,7 @@ def bulkaddress(request):
 
 @login_required
 def migrations(request):
+    options = {} 
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -105,6 +107,21 @@ def migrations(request):
         result = "/opy/pavan.py --grouptar {group} -nexpose AGILE_GROUP --nexposeaddr  'file.csv' --iwtype sw --username {user} --password {pwd}".format(group=group_address, user=username,pwd=password)
         print(result)
         
+        options['target_ip'] = target_ip
+        options['username'] = username
+        options['password'] = password
+        options['group_address'] = group_address
+        options['securityProfileName'] = securityProfileName
+        options['loggingProfileName'] = loggingProfileName
+        options['interfaceMapping'] = interfaceMapping
+        options['zoneMapping'] = zoneMapping
+        options['removeDupes'] = removeDupes
+        options['removeUnused'] = removeUnused
+        options['checkPointExpansion'] = checkPointExpansion
+        
+        # result = services.service_nexpose(options)
+        # print(result)
+        
         data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="migrations",username=username,password=password,targetID=target_ip,loggingProfileName=loggingProfileName,securityProfileName=securityProfileName,interfaceMapping=interfaceMapping,zoneMapping=zoneMapping,removeDupes=removeDupes,removeUnused=removeUnused,checkPointExpansion=checkPointExpansion)
         data_entry.save()
         
@@ -114,6 +131,7 @@ def migrations(request):
 
 @login_required
 def dumpConfig(request):
+    options = {} 
     if request.method == 'POST':
         #getting the values from dumpConfig Form
         username = request.POST.get('username')
@@ -130,6 +148,14 @@ def dumpConfig(request):
         result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=target_ip, user=username,pwd=password)
         print(result)
         
+        options['target_ip'] = target_ip
+        options['username'] = username
+        options['password'] = password
+        options['debug_enable'] = debug_enable
+        
+        # result = services.dump_config(options)
+        # print(result)
+        
         data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="dumpConfig",username=username,password=password,targetID=target_ip,enableDebugOutput=debug_enable)
         data_entry.save()
         
@@ -139,6 +165,7 @@ def dumpConfig(request):
 
 @login_required
 def ruleSearch(request):
+    options = {}
     if request.method == 'POST':
         rule_match_pattern = request.POST.get('rule_match_pattern')
         target_ip = request.POST.get('target_ip')
@@ -164,6 +191,17 @@ def ruleSearch(request):
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         result = "/opt/scripts/git/m65/m5.py -p 1.2.3.4 or -P 5.6.7.8 –username {user} –password {pwd} –rulematch {rule}".format(pwd=password, user=username,rule=rule_match_pattern)
         print(result)
+        
+        options['target_ip'] = target_ip
+        options['username'] = username
+        options['password'] = password
+        options['rule_match_pattern'] = rule_match_pattern
+        options['enableDebugOutput'] = enableDebugOutput
+        options['doNotMatchAnyAddress'] = doNotMatchAnyAddress
+        options['doNotMatchAnyService'] = doNotMatchAnyService
+        
+        # result = services.service_ruleSearch(options)
+        # print(result)
         
         data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="ruleSearch",username=username,password=password,targetID=target_ip,enableDebugOutput=enableDebugOutput,doNotMatchAnyAddress=doNotMatchAnyAddress,doNotMatchAnyService=doNotMatchAnyService  )
         data_entry.save()
