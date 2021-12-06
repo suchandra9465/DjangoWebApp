@@ -13,9 +13,13 @@ class services:
     
     # todo: not sure how to create config .. so considering it as parameter?
     # consider input as dict 
+    # implement try - catch for service nexpose function
     
     def service_nexpose(self,options):  ## create address objects 
 
+        # create thread iterate it through loops
+        # 10 iterations.. sleep for 30 secs
+        # print(hello 1 - 10)
         def run_parallel(targets, max_proc=48):
         
             from multiprocessing import Pool
@@ -30,16 +34,16 @@ class services:
             for target, new_addresses, existing_addresses, members_added, members_existed in results:
                 if new_addresses!='Exception':
                     # check for better way 
-                    log('{},{},{},{}'.format(target, 'New Addresses', len(new_addresses), new_addresses))
-                    log('{},{},{},{}'.format(target, 'Existing Addresses', len(existing_addresses), existing_addresses))
-                    log('{},{},{},{}'.format(target, 'New Group Members', len(members_added), members_added))
-                    log('{},{},{},{}'.format(target, 'Existing Group Members', len(members_existed), members_existed))
+                    print('{},{},{},{}'.format(target, 'New Addresses', len(new_addresses), new_addresses))
+                    print('{},{},{},{}'.format(target, 'Existing Addresses', len(existing_addresses), existing_addresses))
+                    print('{},{},{},{}'.format(target, 'New Group Members', len(members_added), members_added))
+                    print('{},{},{},{}'.format(target, 'Existing Group Members', len(members_existed), members_existed))
                 else:
-                    log('{},{},{}'.format(target, 'Exception', new_addresses))
+                    print('{},{},{}'.format(target, 'Exception', new_addresses))
 
         else:
-            log(options.grouptargets)
-            log('Creating bulk objects without target group targets specified')
+            print(options.grouptargets)
+            print('Creating bulk objects without target group targets specified')
             utils.bulk_create_addresses(None, self.config,self.params)
 
     # todo: contexts 
@@ -349,3 +353,25 @@ class services:
 
     # def get_sonicwall_exp(self,options.sonicwallip):
     #     pass
+    
+    
+    def service_migration(self,options):
+        #log("!-- Retrieving sonicwall config") 
+        if not options.web and (options.username == None or options.password == None):
+            options.username, options.password = get_creds()
+        config=sonicwall_utils.get_sonicwall_exp(options.sonicwallip)
+
+        config['shared']={}
+        config['shared']['config']={}
+        config['shared']['config']['name']=''
+        config['shared']['config']['fw_type']=''
+        config['shared']['config']['version']=''
+        config['shared']['config']['mgmtip']=''
+        config['shared']['addresses']={}
+        config['shared']['services']={}
+        config['shared']['policies']={}  #return_policy
+        config['shared']['nat']={}
+        config['shared']['apps']={}
+        config['shared']['addressmappings']={}
+        config['shared']['servicemappings']={}
+        config['shared']['logprofiles']={}

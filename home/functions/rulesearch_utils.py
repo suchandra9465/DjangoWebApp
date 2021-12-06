@@ -6,7 +6,7 @@ import codecs
 
 def get_prot_of(services, service_object):
 
-## Given a service object name, will return the IP protocol number of it.
+    ## Given a service object name, will return the IP protocol number of it.
 
     if service_object not in services:
       services=config['shared']['services']
@@ -24,7 +24,7 @@ def get_prot_of(services, service_object):
 
 def get_port_of(services, service_object):
   
-## Given a service object name, will return the L4 protocol number of it.
+    ## Given a service object name, will return the L4 protocol number of it.
 
     if service_object not in services:
         services=config['shared']['services']
@@ -36,9 +36,8 @@ def get_port_of(services, service_object):
 
 def get_ports_of(services, service_object):
   
-## Given a service object name, will return the L4 protocol number of it.
+    ## Given a service object name, will return the L4 protocol number of it.
 
-    import re
     portlist=[]
     if service_object == '0':
         return ['any'] #list(range(1))
@@ -98,7 +97,7 @@ def get_ports_of(services, service_object):
 
 def expand_service(service_dict, service_object, service_map, inc_group=False): 
 
-## Takes a service group object (by name) and expands it into a list of all of its individual service objects
+    ## Takes a service group object (by name) and expands it into a list of all of its individual service objects
 
     expanded_services = []
     if service_object.lower() in [name.lower() for name in service_dict]: # do case insensitive match
@@ -126,7 +125,7 @@ def expand_service(service_dict, service_object, service_map, inc_group=False):
 
 def expand_address(address_dict, address_object, address_map, inc_group=False):
 
-## Takes an address group object (by name) and expands it into a list of all of its individual address objects
+    ## Takes an address group object (by name) and expands it into a list of all of its individual address objects
 
     expanded_addresses = []
     if address_object in address_dict:  
