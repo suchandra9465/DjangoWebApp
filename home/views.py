@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib import messages,auth
 from django.contrib.auth.decorators import login_required
 from .models import large
+from .models import jobLogs
 from django.utils import timezone
 from home.functions.services import services
 
@@ -35,14 +36,11 @@ def history(request):
     return render(request, 'home/history.html', context)
 
 #function to store the logs in database
-@login_required
-def saveLog(request):
+
+def saveLog(request,jobid,ip,logdata):
     
-    
-    # context = {}
-    # form_data = large.objects.all().order_by('-id')
-    # context['form_data'] = form_data
-    
+    data_entry = jobLogs(jobid=jobid,ip=ip,log=logdata)
+    data_entry.save()
     
     return render(request, 'home/pipeline.html')
 
