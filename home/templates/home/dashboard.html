@@ -181,10 +181,10 @@
 
                                                 <li class="relative border-b border-gray-200">
                                         
-                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== 2 ? selected = 2 : selected = null">
+                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== "{{ data.id }}" ? selected = "{{ data.id }}" : selected = null">
                                                         <div class="flex items-end">
                                                             <span class="font-medium float-left">
-                                                               Bulk Address Created at {{ data.createdAt }} | 
+                                                               RuleSearch Form Created at {{ data.createdAt }} {{data.id}}| 
                                                                <span class="font-medium text-gray-500">
                                                                 Executed by: {{data.createdBy}} | 
                                                                 <span class="font-medium text-green-600">
@@ -274,10 +274,10 @@
 
                                                 <li class="relative border-b border-gray-200">
                                         
-                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== 2 ? selected = 2 : selected = null">
+                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== {{ data.id }} ? selected = {{ data.id }} : selected = null">
                                                         <div class="flex items-end">
                                                             <span class="font-medium float-left">
-                                                               Bulk Address Created at {{ data.createdAt }} | 
+                                                               Migration Form Created at {{ data.createdAt }} | 
                                                                <span class="font-medium text-gray-500">
                                                                 Executed by: {{data.createdBy}} | 
                                                                 <span class="font-medium text-green-600">
@@ -393,10 +393,10 @@
 
                                                 <li class="relative border-b border-gray-200">
                                         
-                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== 2 ? selected = 2 : selected = null">
+                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== {{ data.id }} ? selected = {{ data.id }} : selected = null">
                                                         <div class="flex items-end">
                                                             <span class="font-medium float-left">
-                                                               Bulk Address Created at {{ data.createdAt }} | 
+                                                               Bulk Address Created at {{ data.createdAt }} {{ data.id }}| 
                                                                <span class="font-medium text-gray-500">
                                                                 Executed by: {{data.createdBy}} | 
                                                                 <span class="font-medium text-green-600">
@@ -495,10 +495,10 @@
 
                                                 <li class="relative border-b border-gray-200">
                                         
-                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== 2 ? selected = 2 : selected = null">
+                                                    <button type="button" class="w-full px-8 py-6 text-left" @click="selected !== {{ data.id }} ? selected = {{ data.id }} : selected = null">
                                                         <div class="flex items-end">
                                                             <span class="font-medium float-left">
-                                                               Bulk Address Created at {{ data.createdAt }} | 
+                                                               Dump Config Created at {{ data.createdAt }} | 
                                                                <span class="font-medium text-gray-500">
                                                                 Executed by: {{data.createdBy}} | 
                                                                 <span class="font-medium text-green-600">

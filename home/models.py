@@ -37,3 +37,8 @@ class large(models.Model):
     doNotMatchAnyAddress = models.BooleanField(default=False)
     doNotMatchAnyService = models.BooleanField(default=False)
     status = models.CharField(max_length=10)
+    
+class jobLogs(models.Model):
+    jobid = models.ForeignKey(large, on_delete=models.CASCADE)
+    ip = models.CharField(max_length=200)
+    log  = models.TextField()

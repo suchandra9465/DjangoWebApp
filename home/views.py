@@ -34,6 +34,18 @@ def history(request):
     
     return render(request, 'home/history.html', context)
 
+#function to store the logs in database
+@login_required
+def saveLog(request):
+    
+    
+    # context = {}
+    # form_data = large.objects.all().order_by('-id')
+    # context['form_data'] = form_data
+    
+    
+    return render(request, 'home/pipeline.html')
+
 @login_required
 def bulkaddress(request):
     options = {} 

@@ -2056,7 +2056,7 @@ def load_xml(infile, memoryconfig=None):
 
 def expand_address(address_dict, address_object, address_map, inc_group=False):
 
-## Takes an address group object (by name) and expands it into a list of all of its individual address objects
+    ## Takes an address group object (by name) and expands it into a list of all of its individual address objects
 
     expanded_addresses = []
     if address_object in address_dict:  
