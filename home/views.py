@@ -1,10 +1,14 @@
 from django.shortcuts import render,redirect
-from django.contrib import messages,auth
+from django.contrib import messages,auth,admin
 from django.contrib.auth.decorators import login_required
 from .models import large
-from .models import jobLogs
+from .models import StatusLog
 from django.utils import timezone
 from home.functions.services import services
+from home.admin import StatusLogAdmin
+import logging
+db_logger = logging.getLogger('db')
+
 
 # Create your views here.
 @login_required
@@ -39,7 +43,7 @@ def history(request):
 
 def saveLog(request,jobid,ip,logdata):
     
-    data_entry = jobLogs(jobid=jobid,ip=ip,log=logdata)
+    data_entry = StatusLog(jobid=jobid,ip=ip,log=logdata)
     data_entry.save()
     
     return render(request, 'home/pipeline.html')
@@ -77,8 +81,15 @@ def bulkaddress(request):
         # print(result.service_nexpose(options))
         # print(result)
         
+        # db_logger.warning('warning message')
+        
         data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly)
         data_entry.save()
+        
+        # send_ip = StatusLogAdmin(admin.ModelAdmin)
+        # send_ip.ip_format(target_ip)
+        
+        # db_logger.info('info message')
         
         
         return redirect('bulkaddress')
