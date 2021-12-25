@@ -23,7 +23,7 @@ class DatabaseLogHandler(logging.Handler):
             'level': record.levelno,
             'msg': msg,
             'trace': trace,
-            'ip': ip,
+            # 'ip': ip,
         }
 
         StatusLog.objects.create(**kwargs)
