@@ -5,6 +5,10 @@ from .models import jobLog, large
 from django.utils import timezone
 from home.functions.services import services
 import logging
+import sys
+from django.http.response import HttpResponse
+from django.http import JsonResponse
+import math
 db_logger = logging.getLogger('db')
 
 
@@ -39,13 +43,39 @@ def history(request):
 
 #function to store the logs in database
 
+def pipelineLogs(request):
+    
+    jobId = request.GET.get('jobId');
+    logId = request.GET.get('logId');
+    logs = jobLog.objects.filter(id=logId).all()
+    responseData = "No Logs Available"
+    if logs:
+        responseData = logs.values()[0]['log']
+   
+    return HttpResponse(responseData)
+
+    
 def pipeLine(request):
     
     context = {}
-    form_data = jobLog.objects.all().order_by('-id')
-    context['form_data'] = form_data
-    print(context)
-    return render(request, 'home/pipeline.html', context)
+    job_data = large.objects.all().order_by('id')[:4]
+    
+    jobsList = []
+    totalCols = 6;
+    for job in job_data.values() :
+        jobLogs = jobLog.objects.filter(jobid_id=job['id']).all();
+        # print(jobLogs.values());
+        
+        temp = {};
+        temp['jobDetails'] = job;
+        temp['totalJobs'] = jobLogs.count();
+        temp['jobs'] = jobLogs.values();
+        temp['colSpanVal'] = math.ceil(totalCols / jobLogs.count())
+        jobsList.append(temp);
+        
+    
+    context['jobsList'] = jobsList;
+    return render(request, 'home/pipeline.html', context);
 
 @login_required
 def bulkaddress(request):

@@ -8,5 +8,6 @@ urlpatterns = [
     path('migrations/',views.migrations,name="migrations"),
     path('rulesearch/',views.ruleSearch,name="rulesearch"),
     path('dumpconfig/',views.dumpConfig,name="dumpconfig"),
-    path('pipeline/',views.pipeLine, name="pipeline")
+    path('pipeline/',views.pipeLine, name="pipeline"),
+    path('joblogs/getLogs',views.pipelineLogs, name="pipelineLogs")
 ]
