@@ -9,7 +9,7 @@ import sys
 from django.http.response import HttpResponse
 from django.http import JsonResponse
 import math
-db_logger = logging.getLogger('db')
+# db_logger = logging.getLogger('db')
 
 
 # Create your views here.
@@ -94,6 +94,7 @@ def bulkaddress(request):
             readOnly = True
         else:
             readOnly = False
+        status = "InProgress"
                      
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         # result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_name, user=username,pwd=password)
@@ -106,20 +107,17 @@ def bulkaddress(request):
         options['context'] = context
         options['addressObject'] = addressObject
         options['readOnly'] = readOnly
+        
+        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly,status=status)
+        data_entry.save()
+        
+        obj = large.objects.latest('id')
         # result = services()
         # print(result.service_nexpose(options))
         # print(result)
-        
-        # db_logger.warning('warning message')
-        
-        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly)
-        data_entry.save()
-        
-        # send_ip = StatusLogAdmin(admin.ModelAdmin)
-        # send_ip.ip_format(target_ip)
-        
-        db_logger.info('info message1')
-        db_logger.info('info message2')
+        for ip in target_ip.split(','):
+            job_entry = jobLog(jobid=obj,ip=ip,status=status)
+            job_entry.save()
         
         return redirect('bulkaddress')
     

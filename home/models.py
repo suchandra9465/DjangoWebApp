@@ -45,6 +45,7 @@ class jobLog(models.Model):
     jobid = models.ForeignKey(large, on_delete=models.CASCADE)
     ip = models.CharField(max_length=200)
     log  = models.TextField(null=True)
+    status = models.CharField(max_length=10,null=True)
 
 
 # LOG_LEVELS = (
