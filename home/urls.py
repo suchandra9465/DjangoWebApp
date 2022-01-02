@@ -7,5 +7,7 @@ urlpatterns = [
     path('bulkaddress/', views.bulkaddress, name="bulkaddress"),
     path('migrations/',views.migrations,name="migrations"),
     path('rulesearch/',views.ruleSearch,name="rulesearch"),
-    path('dumpconfig/',views.dumpConfig,name="dumpconfig")
+    path('dumpconfig/',views.dumpConfig,name="dumpconfig"),
+    path('pipeline/',views.pipeLine, name="pipeline"),
+    path('joblogs/getLogs',views.pipelineLogs, name="pipelineLogs")
 ]

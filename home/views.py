@@ -1,9 +1,16 @@
 from django.shortcuts import render,redirect
-from django.contrib import messages,auth
+from django.contrib import messages,auth,admin
 from django.contrib.auth.decorators import login_required
-from .models import large
+from .models import jobLog, large
 from django.utils import timezone
 from home.functions.services import services
+import logging
+import sys
+from django.http.response import HttpResponse
+from django.http import JsonResponse
+import math
+# db_logger = logging.getLogger('db')
+
 
 # Create your views here.
 @login_required
@@ -34,6 +41,42 @@ def history(request):
     
     return render(request, 'home/history.html', context)
 
+#function to store the logs in database
+
+def pipelineLogs(request):
+    
+    jobId = request.GET.get('jobId');
+    logId = request.GET.get('logId');
+    logs = jobLog.objects.filter(id=logId).all()
+    responseData = "No Logs Available"
+    if logs:
+        responseData = logs.values()[0]['log']
+   
+    return HttpResponse(responseData)
+
+    
+def pipeLine(request):
+    
+    context = {}
+    job_data = large.objects.all().order_by('id')[:4]
+    
+    jobsList = []
+    totalCols = 6;
+    for job in job_data.values() :
+        jobLogs = jobLog.objects.filter(jobid_id=job['id']).all();
+        # print(jobLogs.values());
+        
+        temp = {};
+        temp['jobDetails'] = job;
+        temp['totalJobs'] = jobLogs.count();
+        temp['jobs'] = jobLogs.values();
+        temp['colSpanVal'] = math.ceil(totalCols / jobLogs.count())
+        jobsList.append(temp);
+        
+    
+    context['jobsList'] = jobsList;
+    return render(request, 'home/pipeline.html', context);
+
 @login_required
 def bulkaddress(request):
     options = {} 
@@ -51,6 +94,7 @@ def bulkaddress(request):
             readOnly = True
         else:
             readOnly = False
+        status = "InProgress"
                      
         messages.success(request, 'Job has launched successfully',extra_tags='alert')
         # result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_name, user=username,pwd=password)
@@ -63,13 +107,17 @@ def bulkaddress(request):
         options['context'] = context
         options['addressObject'] = addressObject
         options['readOnly'] = readOnly
+        
+        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly,status=status)
+        data_entry.save()
+        
+        obj = large.objects.latest('id')
         # result = services()
         # print(result.service_nexpose(options))
         # print(result)
-        
-        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly)
-        data_entry.save()
-        
+        for ip in target_ip.split(','):
+            job_entry = jobLog(jobid=obj,ip=ip,status=status)
+            job_entry.save()
         
         return redirect('bulkaddress')
     
