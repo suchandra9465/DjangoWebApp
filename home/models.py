@@ -7,11 +7,11 @@ from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 # JobId  - (Primary Key)
-# CreatedAt (Time) 
+# CreatedAt (Time)
 # CreatedBy ( userId - forigen Key)
 # JobType ( 4 different JobType {migration, rule, dump, bulk)
 # JobBlob (json or dist)
-# status 
+# status
 # completedAt
 User = get_user_model()
 
@@ -49,6 +49,7 @@ class JobLog(models.Model):
     log = models.TextField(null=True)
     status = models.CharField(max_length=10, null=True)
 
+
 # LOG_LEVELS = (
 #     (logging.NOTSET, _('NotSet')),
 #     (logging.INFO, _('Info')),
@@ -57,7 +58,6 @@ class JobLog(models.Model):
 #     (logging.ERROR, _('Error')),
 #     (logging.FATAL, _('Fatal')),
 # )
-
 
 # @python_2_unicode_compatible
 # class StatusLog(models.Model):

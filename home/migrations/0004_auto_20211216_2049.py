@@ -12,7 +12,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='statuslog',
-            options={'verbose_name': 'Logging', 'verbose_name_plural': 'Logging'},
+            options={
+                'verbose_name': 'Logging',
+                'verbose_name_plural': 'Logging'
+            },
         ),
         migrations.RemoveField(
             model_name='statuslog',

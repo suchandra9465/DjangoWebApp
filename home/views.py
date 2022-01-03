@@ -60,12 +60,16 @@ def pipeline(request):
     for job in job_data.values():
         jobLogs = JobLog.objects.filter(jobid_id=job['id']).all()
 
-        temp = {'jobDetails': job, 'totalJobs': jobLogs.count(), 'jobs': jobLogs.values(),
-                'colSpanVal': math.ceil(total_cols / jobLogs.count())};
-        jobs.append(temp);
+        temp = {
+            'jobDetails': job,
+            'totalJobs': jobLogs.count(),
+            'jobs': jobLogs.values(),
+            'colSpanVal': math.ceil(total_cols / jobLogs.count())
+        }
+        jobs.append(temp)
 
-    context['jobsList'] = jobs;
-    return render(request, 'home/pipeline.html', context);
+    context['jobsList'] = jobs
+    return render(request, 'home/pipeline.html', context)
 
 
 @login_required
@@ -81,7 +85,8 @@ def bulk_address(request):
         options['comment'] = request.POST.get('comment')
         options['context'] = request.POST.get('context')
         options['addressObject'] = request.POST.get('about')
-        options['readOnly'] = True if request.POST.get('readonly') == 'on' else False
+        options['readOnly'] = True if request.POST.get(
+            'readonly') == 'on' else False
 
         status = "InProgress"
         data_entry = Large(createdBy=request.user.username,
@@ -121,15 +126,22 @@ def migrations(request):
         options['password'] = request.POST.get('password')
         options['target_ip'] = request.POST.get('target_ip')
         options['group_address'] = request.POST.get('device_group_template')
-        options['securityProfileName'] = request.POST.get('security_profile_name')
-        options['loggingProfileName'] = request.POST.get('logging_profile_name')
+        options['securityProfileName'] = request.POST.get(
+            'security_profile_name')
+        options['loggingProfileName'] = request.POST.get(
+            'logging_profile_name')
         options['interfaceMapping'] = request.POST.get('interface_mappings')
         options['zoneMapping'] = request.POST.get('zone_mapping')
-        options['removeDupes'] = True if request.POST.get('remove_dupes') == 'on' else False
-        options['removeUnused'] = True if request.POST.get('remove_unused') == 'on' else False
-        options['checkPointExpansion'] = True if request.POST.get('checkpoint') == 'on' else False
+        options['removeDupes'] = True if request.POST.get(
+            'remove_dupes') == 'on' else False
+        options['removeUnused'] = True if request.POST.get(
+            'remove_unused') == 'on' else False
+        options['checkPointExpansion'] = True if request.POST.get(
+            'checkpoint') == 'on' else False
 
-        messages.success(request, 'Job has launched successfully', extra_tags='alert')
+        messages.success(request,
+                         'Job has launched successfully',
+                         extra_tags='alert')
         result = Services.service_nexpose(options)
 
         data_entry = Large(createdBy=request.user.username,
@@ -160,15 +172,22 @@ def dump_config(request):
         options['username'] = request.POST.get('username')
         options['password'] = request.POST.get('password')
         options['target_ip'] = request.POST.get('target_ip')
-        options['debug_enable'] = True if request.POST.get('enableCheck') == 'on' else False
+        options['debug_enable'] = True if request.POST.get(
+            'enableCheck') == 'on' else False
 
-        messages.success(request, 'Job has launched successfully', extra_tags='alert')
+        messages.success(request,
+                         'Job has launched successfully',
+                         extra_tags='alert')
 
         # result = Services.dump_config(options)
         # print(result)
 
-        data_entry = Large(createdBy=request.user.username, createdAt=timezone.now(), jobType="dumpConfig",
-                           username=options['username'], password=options['password'], targetID=options['target_ip'],
+        data_entry = Large(createdBy=request.user.username,
+                           createdAt=timezone.now(),
+                           jobType="dumpConfig",
+                           username=options['username'],
+                           password=options['password'],
+                           targetID=options['target_ip'],
                            enableDebugOutput=options['debug_enable'])
         data_entry.save()
 
@@ -185,16 +204,27 @@ def rule_search(request):
         options['username'] = request.POST.get('username')
         options['password'] = request.POST.get('password')
 
-        options['enableDebugOutput'] = True if request.POST.get('readonly') == 'on' else False
-        options['doNotMatchAnyAddress'] = True if request.POST.get('remove_unused') == 'on' else False
-        options['doNotMatchAnyService'] = True if request.POST.get('checkpoint') == 'on' else False
+        options['enableDebugOutput'] = True if request.POST.get(
+            'readonly') == 'on' else False
+        options['doNotMatchAnyAddress'] = True if request.POST.get(
+            'remove_unused') == 'on' else False
+        options['doNotMatchAnyService'] = True if request.POST.get(
+            'checkpoint') == 'on' else False
 
-        messages.success(request, 'Job has launched successfully', extra_tags='alert')
+        messages.success(request,
+                         'Job has launched successfully',
+                         extra_tags='alert')
 
-        data_entry = Large(createdBy=request.user.username, createdAt=timezone.now(), jobType="ruleSearch",
-                           username=options['username'], password=options['password'], targetID=options['target_ip'],
-                           enableDebugOutput=options['enableDebugOutput'], doNotMatchAnyAddress=options['doNotMatchAnyAddress'],
-                           doNotMatchAnyService=options['doNotMatchAnyService'])
+        data_entry = Large(
+            createdBy=request.user.username,
+            createdAt=timezone.now(),
+            jobType="ruleSearch",
+            username=options['username'],
+            password=options['password'],
+            targetID=options['target_ip'],
+            enableDebugOutput=options['enableDebugOutput'],
+            doNotMatchAnyAddress=options['doNotMatchAnyAddress'],
+            doNotMatchAnyService=options['doNotMatchAnyService'])
         data_entry.save()
 
         return redirect('dashboard')

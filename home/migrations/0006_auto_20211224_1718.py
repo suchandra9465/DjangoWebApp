@@ -14,13 +14,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='jobLogs',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id',
+                 models.AutoField(auto_created=True,
+                                  primary_key=True,
+                                  serialize=False,
+                                  verbose_name='ID')),
                 ('ip', models.CharField(max_length=200)),
                 ('log', models.TextField(null=True)),
-                ('jobid', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='home.large')),
+                ('jobid',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                   to='home.large')),
             ],
         ),
-        migrations.DeleteModel(
-            name='StatusLog',
-        ),
+        migrations.DeleteModel(name='StatusLog', ),
     ]
