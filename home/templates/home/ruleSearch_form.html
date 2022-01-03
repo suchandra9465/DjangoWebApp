@@ -22,7 +22,7 @@
                               {% endfor %}
                             {% endif %}
                                 <div>
-                                  <h3 class="text-lg font-medium leading-6 text-gray-900">Rule Search Form</h3>
+                                  <h3 class="text-lg font-medium leading-6 text-gray-900">Rule Search</h3>
                                   <!-- <p class="mt-1 text-sm text-gray-500">Use a permanent address where you can recieve mail.</p> -->
                                 </div>
                     
@@ -60,26 +60,27 @@
                                   
                                   <div  class="col-span-6 div_sonicwall">
                                     <label for="target_ip" class="block text-sm font-medium text-gray-700">SonicWALL IP Address</label>
-                                    <input type="text" name="target_ip" id="target_ip" autocomplete="given-name" class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                   </div>
-                                  
-                                  <div  class="col-span-6 div_panorama hidden">
-                                    <label for="target_ip" class="block text-sm font-medium text-gray-700">Panaroma IP Address</label>
-                                    <input type="text" name="target_ip" id="target_ip" autocomplete="given-name" class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
-                                    
-                                  </div>
+
                                   <div class="col-span-6 div_panorama hidden">
                                     <label for="device_groups" class="block text-sm font-medium text-gray-700">Device Groups</label>
                                     <select id="device_groups" name="device_groups" class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                         <option value="all">All Device Groups</option>
-                                      </select>
+                                    </select>
+                                  </div>
+
+                                  <div  class="col-span-6 div_panorama hidden">
+                                    <label for="target_ip" class="block text-sm font-medium text-gray-700">Panaroma IP Address</label>
                                   </div>
 
                                   <div class="col-span-6 div_checkpoint hidden">
                                     <label for="target_ip" class="block text-sm font-medium text-gray-700">Checkpoint IP Address</label>
+                                  </div>
+
+                                  <div class="col-span-6 div_target_ip">
                                     <input type="text" name="target_ip" id="target_ip" autocomplete="given-name" class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                   </div>
-                    
+
                                   <div class="col-span-6">
                                     <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
                                     <input type="text" name="username" id="username"  class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>

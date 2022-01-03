@@ -1,13 +1,15 @@
 import logging
 
-
 db_default_formatter = logging.Formatter()
 
 DJANGO_DB_LOGGER_ENABLE_FORMATTER = False
+
+
 class DatabaseLogHandler(logging.Handler):
+
     def emit(self, record):
         from .models import StatusLog
-        
+
         trace = None
 
         if record.exc_info:

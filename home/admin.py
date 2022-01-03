@@ -1,11 +1,10 @@
-
 from __future__ import unicode_literals
 from django.contrib import admin
-from .models import large,jobLog
+from .models import Large, JobLog
 
 # Register your models here.
-admin.site.register(large)
-admin.site.register(jobLog)
+admin.site.register(Large)
+admin.site.register(JobLog)
 
 # from __future__ import unicode_literals
 # import logging
@@ -37,6 +36,5 @@ admin.site.register(jobLog)
 #     def ip_format(self, ip):
 #         return format_html('<pre><code>{content}</code></pre>', content=ip)
 #     ip_format.short_description = 'Ip'
-    
 
 # admin.site.register(StatusLog, StatusLogAdmin)

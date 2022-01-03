@@ -4,10 +4,10 @@ from . import views
 urlpatterns = [
     path('', views.dashboard, name="dashboard"),
     path('history/', views.history, name="history"),
-    path('bulkaddress/', views.bulkaddress, name="bulkaddress"),
-    path('migrations/',views.migrations,name="migrations"),
-    path('rulesearch/',views.ruleSearch,name="rulesearch"),
-    path('dumpconfig/',views.dumpConfig,name="dumpconfig"),
-    path('pipeline/',views.pipeLine, name="pipeline"),
-    path('joblogs/getLogs',views.pipelineLogs, name="pipelineLogs")
+    path('bulkaddress/', views.bulk_address, name="bulkaddress"),
+    path('migrations/', views.migrations, name="migrations"),
+    path('rulesearch/', views.rule_search, name="rulesearch"),
+    path('dumpconfig/', views.dump_config, name="dumpconfig"),
+    path('pipeline/', views.pipeline, name="pipeline"),
+    path('joblogs/getLogs', views.pipeline_logs, name="pipelineLogs")
 ]
