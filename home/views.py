@@ -1,259 +1,202 @@
-from django.shortcuts import render,redirect
-from django.contrib import messages,auth,admin
+from django.shortcuts import render, redirect
+from django.contrib import messages, auth, admin
 from django.contrib.auth.decorators import login_required
-from .models import jobLog, large
+from .models import JobLog, Large
 from django.utils import timezone
-from home.functions.services import services
+from home.functions.services import Services
 import logging
 import sys
 from django.http.response import HttpResponse
 from django.http import JsonResponse
 import math
-# db_logger = logging.getLogger('db')
 
 
 # Create your views here.
 @login_required
 def dashboard(request):
     context = {}
-    form_data = large.objects.all().order_by('-id')[:5]
-    bulkaddress_no = large.objects.filter(jobType='bulkaddress').count()
-    dumpConfig_no = large.objects.filter(jobType='dumpConfig').count()
-    migrations_no = large.objects.filter(jobType='migrations').count()
-    ruleSearch_no = large.objects.filter(jobType='ruleSearch').count()
-    
+    form_data = Large.objects.all().order_by('-id')[:5]
+    bulkaddress_no = Large.objects.filter(jobType='bulkaddress').count()
+    dumpConfig_no = Large.objects.filter(jobType='dumpConfig').count()
+    migrations_no = Large.objects.filter(jobType='migrations').count()
+    ruleSearch_no = Large.objects.filter(jobType='ruleSearch').count()
+
     context['form_data'] = form_data
     context['bulkaddress_no'] = bulkaddress_no
     context['dumpConfig_no'] = dumpConfig_no
     context['migrations_no'] = migrations_no
     context['ruleSearch_no'] = ruleSearch_no
-    
-    return render(request, 'home/dashboard.html',context)
+
+    return render(request, 'home/dashboard.html', context)
+
 
 @login_required
 def history(request):
-    
-    
     context = {}
-    form_data = large.objects.all().order_by('-id')
+    form_data = Large.objects.all().order_by('-id')
     context['form_data'] = form_data
-    
-    
+
     return render(request, 'home/history.html', context)
 
-#function to store the logs in database
 
-def pipelineLogs(request):
-    
-    jobId = request.GET.get('jobId');
-    logId = request.GET.get('logId');
-    logs = jobLog.objects.filter(id=logId).all()
-    responseData = "No Logs Available"
+# function to store the logs in database
+def pipeline_logs(request):
+    job_id = request.GET.get('job_id')
+    log_id = request.GET.get('logId')
+    logs = JobLog.objects.filter(id=log_id).all()
+    response_data = "No Logs Available"
     if logs:
-        responseData = logs.values()[0]['log']
-   
-    return HttpResponse(responseData)
+        response_data = logs.values()[0]['log']
 
-    
-def pipeLine(request):
-    
+    return HttpResponse(response_data)
+
+
+def pipeline(request):
     context = {}
-    job_data = large.objects.all().order_by('id')[:4]
-    
-    jobsList = []
-    totalCols = 6;
-    for job in job_data.values() :
-        jobLogs = jobLog.objects.filter(jobid_id=job['id']).all();
-        # print(jobLogs.values());
-        
-        temp = {};
-        temp['jobDetails'] = job;
-        temp['totalJobs'] = jobLogs.count();
-        temp['jobs'] = jobLogs.values();
-        temp['colSpanVal'] = math.ceil(totalCols / jobLogs.count())
-        jobsList.append(temp);
-        
-    
-    context['jobsList'] = jobsList;
+    job_data = Large.objects.all().order_by('id')[:4]
+
+    jobs = []
+    total_cols = 6
+    for job in job_data.values():
+        jobLogs = JobLog.objects.filter(jobid_id=job['id']).all()
+
+        temp = {'jobDetails': job, 'totalJobs': jobLogs.count(), 'jobs': jobLogs.values(),
+                'colSpanVal': math.ceil(total_cols / jobLogs.count())};
+        jobs.append(temp);
+
+    context['jobsList'] = jobs;
     return render(request, 'home/pipeline.html', context);
 
+
 @login_required
-def bulkaddress(request):
-    options = {} 
+def bulk_address(request):
+    options = {}
     if request.method == 'POST':
-        target_ip = request.POST.get('target_ip')
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        group_name = request.POST.get('address_group_name')
-        firewallType = request.POST.get('firewall_type')
-        comment = request.POST.get('comment')
-        context = request.POST.get('context')
-        addressObject = request.POST.get('about')
-        readOnly = request.POST.get('readonly')
-        if readOnly == 'on':
-            readOnly = True
-        else:
-            readOnly = False
+
+        options['target_ip'] = request.POST.get('target_ip')
+        options['username'] = request.POST.get('username')
+        options['password'] = request.POST.get('password')
+        options['group_name'] = request.POST.get('address_group_name')
+        options['firewallType'] = request.POST.get('firewall_type')
+        options['comment'] = request.POST.get('comment')
+        options['context'] = request.POST.get('context')
+        options['addressObject'] = request.POST.get('about')
+        options['readOnly'] = True if request.POST.get('readonly') == 'on' else False
+
         status = "InProgress"
-                     
-        messages.success(request, 'Job has launched successfully',extra_tags='alert')
-        # result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=group_name, user=username,pwd=password)
-        options['target_ip'] = target_ip
-        options['username'] = username
-        options['password'] = password
-        options['group_name'] = group_name
-        options['firewallType'] = firewallType
-        options['comment'] = comment
-        options['context'] = context
-        options['addressObject'] = addressObject
-        options['readOnly'] = readOnly
-        
-        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="bulkaddress",username=username,password=password,targetID=target_ip,firewallType=firewallType,group_name=group_name,comment=comment,context=context,addressObject=addressObject,readOnly=readOnly,status=status)
+        data_entry = Large(createdBy=request.user.username,
+                           createdAt=timezone.now(),
+                           jobType="bulkaddress",
+                           username=options['username'],
+                           password=options['password'],
+                           targetID=options['target_ip'],
+                           firewallType=options['firewallType'],
+                           group_name=options['group_name'],
+                           comment=options['comment'],
+                           context=options['context'],
+                           addressObject=options['addressObject'],
+                           readOnly=options['readOnly'],
+                           status=status)
         data_entry.save()
-        
-        obj = large.objects.latest('id')
-        # result = services()
-        # print(result.service_nexpose(options))
-        # print(result)
-        for ip in target_ip.split(','):
-            job_entry = jobLog(jobid=obj,ip=ip,status=status)
-            job_entry.save()
-        
-        return redirect('bulkaddress')
-    
+
+        obj = Large.objects.latest('id')
+        result = Services.service_nexpose(options)
+
+        # Todo : Write it to the log.
+        # for ip in target_ip.split(','):
+        #     job_entry = jobLog(jobid=obj, ip=ip, status=status)
+        #     job_entry.save()
+
+        return redirect('dashboard')
+
     return render(request, 'home/bulkaddress_form.html')
+
 
 @login_required
 def migrations(request):
-    options = {} 
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        group_address = request.POST.get('device_group_template')
-        target_ip = request.POST.get('target_ip')
-        loggingProfileName = request.POST.get('logging_profile_name')
-        securityProfileName = request.POST.get('security_profile_name')
-        interfaceMapping = request.POST.get('interface_mappings')
-        zoneMapping = request.POST.get('zone_mapping')
-        removeDupes = request.POST.get('remove_dupes')
-        if removeDupes == 'on':
-            removeDupes = True
-        else:
-            removeDupes = False
-        removeUnused = request.POST.get('remove_unused')
-        if removeUnused == 'on':
-            removeUnused = True
-        else:
-            removeUnused = False
-        checkPointExpansion = request.POST.get('checkpoint')
-        if checkPointExpansion == 'on':
-            checkPointExpansion = True
-        else:
-            checkPointExpansion = False
-        print(zoneMapping,interfaceMapping,removeDupes,removeUnused,checkPointExpansion)
-        messages.success(request, 'Job has launched successfully',extra_tags='alert')
-        result = "/opy/pavan.py --grouptar {group} -nexpose AGILE_GROUP --nexposeaddr  'file.csv' --iwtype sw --username {user} --password {pwd}".format(group=group_address, user=username,pwd=password)
-        print(result)
-        
-        options['target_ip'] = target_ip
-        options['username'] = username
-        options['password'] = password
-        options['group_address'] = group_address
-        options['securityProfileName'] = securityProfileName
-        options['loggingProfileName'] = loggingProfileName
-        options['interfaceMapping'] = interfaceMapping
-        options['zoneMapping'] = zoneMapping
-        options['removeDupes'] = removeDupes
-        options['removeUnused'] = removeUnused
-        options['checkPointExpansion'] = checkPointExpansion
-        
-        # result = services.service_nexpose(options)
-        # print(result)
-        
-        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="migrations",username=username,password=password,targetID=target_ip,loggingProfileName=loggingProfileName,securityProfileName=securityProfileName,interfaceMapping=interfaceMapping,zoneMapping=zoneMapping,removeDupes=removeDupes,removeUnused=removeUnused,checkPointExpansion=checkPointExpansion)
-        data_entry.save()
-        
-        return redirect('migrations')
-    
-    return render(request, 'home/migration_form.html')
-
-@login_required
-def dumpConfig(request):
-    options = {} 
-    if request.method == 'POST':
-        #getting the values from dumpConfig Form
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        target_ip = request.POST.get('target_ip')
-        debug_enable = request.POST.get('enableCheck')
-        if debug_enable == 'on':
-            debug_enable = True
-        else:
-            debug_enable = False
-        print(username,password,target_ip,debug_enable)
-        
-        messages.success(request, 'Job has launched successfully',extra_tags='alert')
-        result = "/opt/scripts/git/m65/m5.py --nexpose DeleteMe --groupadd {group} --fwtype sw65 --grouptargets 10.0.8.237 --username {user} --password {pwd} --comment 'Test'".format(group=target_ip, user=username,pwd=password)
-        print(result)
-        
-        options['target_ip'] = target_ip
-        options['username'] = username
-        options['password'] = password
-        options['debug_enable'] = debug_enable
-        
-        # result = services.dump_config(options)
-        # print(result)
-        
-        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="dumpConfig",username=username,password=password,targetID=target_ip,enableDebugOutput=debug_enable)
-        data_entry.save()
-        
-        return redirect('dumpconfig')
-    
-    return render(request, 'home/dumpConfig_form.html')
-
-@login_required
-def ruleSearch(request):
     options = {}
     if request.method == 'POST':
-        rule_match_pattern = request.POST.get('rule_match_pattern')
-        target_ip = request.POST.get('target_ip')
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        enableDebugOutput = request.POST.get('readonly')
-        if enableDebugOutput == 'on':
-            enableDebugOutput = True
-        else:
-            enableDebugOutput = False
-        doNotMatchAnyAddress = request.POST.get('remove_unused')
-        if doNotMatchAnyAddress == 'on':
-            doNotMatchAnyAddress = True
-        else:
-            doNotMatchAnyAddress = False
-        doNotMatchAnyService = request.POST.get('checkpoint')
-        if doNotMatchAnyService == 'on':
-            doNotMatchAnyService = True
-        else:
-            doNotMatchAnyService = False
-            
-            
-        messages.success(request, 'Job has launched successfully',extra_tags='alert')
-        result = "/opt/scripts/git/m65/m5.py -p 1.2.3.4 or -P 5.6.7.8 –username {user} –password {pwd} –rulematch {rule}".format(pwd=password, user=username,rule=rule_match_pattern)
-        print(result)
-        
-        options['target_ip'] = target_ip
-        options['username'] = username
-        options['password'] = password
-        options['rule_match_pattern'] = rule_match_pattern
-        options['enableDebugOutput'] = enableDebugOutput
-        options['doNotMatchAnyAddress'] = doNotMatchAnyAddress
-        options['doNotMatchAnyService'] = doNotMatchAnyService
-        
-        # result = services.service_ruleSearch(options)
-        # print(result)
-        
-        data_entry = large(createdBy=request.user.username,createdAt=timezone.now(),jobType="ruleSearch",username=username,password=password,targetID=target_ip,enableDebugOutput=enableDebugOutput,doNotMatchAnyAddress=doNotMatchAnyAddress,doNotMatchAnyService=doNotMatchAnyService  )
+
+        options['username'] = request.POST.get('username')
+        options['password'] = request.POST.get('password')
+        options['target_ip'] = request.POST.get('target_ip')
+        options['group_address'] = request.POST.get('device_group_template')
+        options['securityProfileName'] = request.POST.get('security_profile_name')
+        options['loggingProfileName'] = request.POST.get('logging_profile_name')
+        options['interfaceMapping'] = request.POST.get('interface_mappings')
+        options['zoneMapping'] = request.POST.get('zone_mapping')
+        options['removeDupes'] = True if request.POST.get('remove_dupes') == 'on' else False
+        options['removeUnused'] = True if request.POST.get('remove_unused') == 'on' else False
+        options['checkPointExpansion'] = True if request.POST.get('checkpoint') == 'on' else False
+
+        messages.success(request, 'Job has launched successfully', extra_tags='alert')
+        result = Services.service_nexpose(options)
+
+        data_entry = Large(createdBy=request.user.username,
+                           createdAt=timezone.now(),
+                           jobType="migrations",
+                           username=options['username'],
+                           password=options['password'],
+                           targetID=options['target_ip'],
+                           loggingProfileName=options['loggingProfileName'],
+                           securityProfileName=options['securityProfileName'],
+                           interfaceMapping=options['interfaceMapping'],
+                           zoneMapping=options['zoneMapping'],
+                           removeDupes=options['removeDupes'],
+                           removeUnused=options['removeUnused'],
+                           checkPointExpansion=options['checkPointExpansion'])
         data_entry.save()
-        
-        return redirect('rulesearch')
-    
+
+        return redirect('dashboard')
+
+    return render(request, 'home/migration_form.html')
+
+
+@login_required
+def dump_config(request):
+    options = {}
+    if request.method == 'POST':
+
+        options['username'] = request.POST.get('username')
+        options['password'] = request.POST.get('password')
+        options['target_ip'] = request.POST.get('target_ip')
+        options['debug_enable'] = True if request.POST.get('enableCheck') == 'on' else False
+
+        messages.success(request, 'Job has launched successfully', extra_tags='alert')
+
+        # result = Services.dump_config(options)
+        # print(result)
+
+        data_entry = Large(createdBy=request.user.username, createdAt=timezone.now(), jobType="dumpConfig",
+                           username=options['username'], password=options['password'], targetID=options['target_ip'],
+                           enableDebugOutput=options['debug_enable'])
+        data_entry.save()
+
+        return redirect('dashboard')
+    return render(request, 'home/dumpConfig_form.html')
+
+
+@login_required
+def rule_search(request):
+    options = {}
+    if request.method == 'POST':
+        options['rule_match_pattern'] = request.POST.get('rule_match_pattern')
+        options['target_ip'] = request.POST.get('target_ip')
+        options['username'] = request.POST.get('username')
+        options['password'] = request.POST.get('password')
+
+        options['enableDebugOutput'] = True if request.POST.get('readonly') == 'on' else False
+        options['doNotMatchAnyAddress'] = True if request.POST.get('remove_unused') == 'on' else False
+        options['doNotMatchAnyService'] = True if request.POST.get('checkpoint') == 'on' else False
+
+        messages.success(request, 'Job has launched successfully', extra_tags='alert')
+
+        data_entry = Large(createdBy=request.user.username, createdAt=timezone.now(), jobType="ruleSearch",
+                           username=options['username'], password=options['password'], targetID=options['target_ip'],
+                           enableDebugOutput=options['enableDebugOutput'], doNotMatchAnyAddress=options['doNotMatchAnyAddress'],
+                           doNotMatchAnyService=options['doNotMatchAnyService'])
+        data_entry.save()
+
+        return redirect('dashboard')
+
     return render(request, 'home/ruleSearch_form.html')

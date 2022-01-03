@@ -2,40 +2,43 @@ from . import utils
 from . import sonicwall_utils
 from . import rulesearch_utils
 from . import dumpConfig_utils
-# import xlsxwriter
+import xlsxwriter
 
-#todo: check for xlswriter file
-class services:
-    config={}
+
+# todo: check for xlswriter file
+def get_creds():
+    import getpass
+    username = input("  Username : ")
+    password = getpass.getpass("  Password : ")
+    return username, password
+
+
+class Services:
+    config = {}
+
     def __init__(self, config) -> None:
         self.config = config
-        
-    
+
     # todo: not sure how to create config .. so considering it as parameter?
     # consider input as dict 
     # implement try - catch for service nexpose function
-    
-    def service_nexpose(self,options):  ## create address objects 
+    def service_nexpose(self, options):  ## create address objects
 
-        # create thread iterate it through loops
-        # 10 iterations.. sleep for 30 secs
-        # print(hello 1 - 10)
         def run_parallel(targets, max_proc=48):
-        
+
             from multiprocessing import Pool
 
             pool = Pool(processes=max_proc)
-            results=pool.map(utils.bulk_create_addresses, targets)
-            
-            return results
-    
+            return pool.map(utils.bulk_create_addresses, targets)
+
         if options.grouptargets:
-            results=run_parallel(options.grouptargets)
+            results = run_parallel(options.grouptargets)
             for target, new_addresses, existing_addresses, members_added, members_existed in results:
-                if new_addresses!='Exception':
+                if new_addresses != 'Exception':
                     # check for better way 
                     print('{},{},{},{}'.format(target, 'New Addresses', len(new_addresses), new_addresses))
-                    print('{},{},{},{}'.format(target, 'Existing Addresses', len(existing_addresses), existing_addresses))
+                    print(
+                        '{},{},{},{}'.format(target, 'Existing Addresses', len(existing_addresses), existing_addresses))
                     print('{},{},{},{}'.format(target, 'New Group Members', len(members_added), members_added))
                     print('{},{},{},{}'.format(target, 'Existing Group Members', len(members_existed), members_existed))
                 else:
@@ -44,71 +47,67 @@ class services:
         else:
             print(options.grouptargets)
             print('Creating bulk objects without target group targets specified')
-            utils.bulk_create_addresses(None, self.config,self.params)
+            utils.bulk_create_addresses(None, self.config, self.params)
 
-    # todo: contexts 
-    def service_ruleSearch(self,options):
-        rulesearch_utils.find_matching_rules2(config, config['shared'], options.rulematch, contexts, options.rulemodify)
-        
-    # dunp config
-    def dump_config(config, contexts):
-        
-        # Not complete?  There might be cases in with shared objects are not handled correctly?
-        # Dynamic column widths by tracking longest length item and calling set_column after data is written?
-        
-        
+    # todo: contexts and config
+    def service_ruleSearch(self, options):
+        rulesearch_utils.find_matching_rules2(self.config, self.config['shared'], options.rulematch, self.contexts, options, options.rulemodify)
+
+    # dump config
+    def dump_config(self, config, contexts):
+
         sh_addr = []
         sh_svc = []
 
-        ## Output to XLSX
-        path=''
-        
+        #Output to XLSX
+        path = ''
+
         for context in contexts:
-            log('\r!-- Dumping ' + context + ' to Excel                                                 ')
+            print('\r!-- Dumping ' + context + ' to Excel                                                 ')
             workbook = xlsxwriter.Workbook(path + context + '.xlsx')
-            
+
             xl_policies = workbook.add_worksheet('Policies')
             xl_policies.set_column('A:I', 50)
             xl_policies.set_column('B:B', 15)
-            xl_addresses  = workbook.add_worksheet('Addresses')
+            xl_addresses = workbook.add_worksheet('Addresses')
             xl_addresses.set_column('A:H', 50)
             xl_addresses.set_column('C:C', 12)
             xl_addresses.set_column('D:D', 12)
             xl_addresses.set_column('E:E', 20)
             xl_addresses.set_column('F:F', 20)
             xl_addresses.set_column('G:G', 20)
-            xl_addressgroups  = workbook.add_worksheet('Address Groups')
+            xl_addressgroups = workbook.add_worksheet('Address Groups')
             xl_addressgroups.set_column('A:H', 50)
-            xl_services  = workbook.add_worksheet('Services')
+            xl_services = workbook.add_worksheet('Services')
             xl_services.set_column('A:H', 50)
             xl_services.set_column('B:B', 15)
             xl_services.set_column('C:C', 15)
             xl_services.set_column('D:D', 15)
             xl_services.set_column('E:E', 12)
             xl_services.set_column('F:F', 12)
-                    
-            xl_servicegroups  = workbook.add_worksheet('Service Groups')
+
+            xl_servicegroups = workbook.add_worksheet('Service Groups')
             xl_servicegroups.set_column('A:H', 50)
-            xl_networking  = workbook.add_worksheet('Networking')
+            xl_networking = workbook.add_worksheet('Networking')
             xl_networking.set_column('A:H', 50)
-            
+
             ## print headers for each worksheet
             if len(list(config[context]['policies'].keys())) > 0:
                 for col, key in enumerate(config[context]['policies'][list(config[context]['policies'].keys())[0]]):
-                    xl_policies.write(0, col,key)
+                    xl_policies.write(0, col, key)
             xl_addressgroups.write(0, 0, 'Address Mappings')
             xl_servicegroups.write(0, 0, 'Service Mappings')
-        
+
             xl_addresses.write(0, 0, 'Addresses')
             if len(list(config[context]['addresses'].keys())) > 0:
                 for col, key in enumerate(config[context]['addresses'][list(config[context]['addresses'].keys())[0]]):
-                    xl_addresses.write(0, col,key)
+                    xl_addresses.write(0, col, key)
             xl_services.write(0, 0, 'Services')
             row = 1
             if len(list(config[context]['services'].keys())) > 0:
                 for col, key in enumerate(config[context]['services'][list(config[context]['services'].keys())[0]]):
                     xl_services.write(0, col, key)
-            
+
             row = 1
             for policy in config[context]['policies']:
                 # build list of address and service objects that might be in shared
@@ -124,13 +123,13 @@ class services:
                     if svc not in config[context]['services'] and svc in config['shared']['services']:
                         if svc not in sh_svc:
                             sh_svc.append(svc)
-                
+
                 for col, key in enumerate(config[context]['policies'][policy]):
-                    output=''
+                    output = ''
                     if type(config[context]['policies'][policy][key]) == list:
                         for index, item in enumerate(config[context]['policies'][policy][key]):
-                            #output += item
-                            if key in ['policySrcNet', 'policyDstNet', 'policyDstSvc'] and item in['']:
+                            # output += item
+                            if key in ['policySrcNet', 'policyDstNet', 'policyDstSvc'] and item in ['']:
                                 output += 'any'
                             else:
                                 output += item
@@ -147,9 +146,9 @@ class services:
                             output = config[context]['policies'][policy][key]
                     elif key == 'policyEnabled':
                         if config[context]['policies'][policy][key] == '1':
-                            output='Enabled'
+                            output = 'Enabled'
                         else:
-                            output='Disabled'
+                            output = 'Disabled'
                     else:
                         output = str(config[context]['policies'][policy][key])
                     if row % 2 == 1:
@@ -158,7 +157,7 @@ class services:
                         cell_format = workbook.add_format({'bg_color': '#BBBBBB', 'text_wrap': True})
                     xl_policies.write(row, col, dumpConfig_utils.ss(output), cell_format)
                 row += 1
-            
+
             row = 1
             for map in config[context]['addressmappings']:
                 if row % 2 == 1:
@@ -169,9 +168,9 @@ class services:
                 output = ''
                 for index, item in enumerate(config[context]['addressmappings'][map]):
                     output += item
-                    if index < len(config[context]['addressmappings'][map]) - 1: 
-                        output += '\n'            
-                xl_addressgroups.write(row, 1, ss(output), cell_format)
+                    if index < len(config[context]['addressmappings'][map]) - 1:
+                        output += '\n'
+                xl_addressgroups.write(row, 1, utils.ss(output), cell_format)
                 row += 1
             if 'shared' in config:
                 for map in config['shared']['addressmappings']:
@@ -184,12 +183,12 @@ class services:
                         output = ''
                         for index, item in enumerate(config['shared']['addressmappings'][map]):
                             output += item
-                            if index < len(config['shared']['addressmappings'][map]) - 1: 
+                            if index < len(config['shared']['addressmappings'][map]) - 1:
                                 output += '\n'
-                        
+
                         xl_addressgroups.write(row, 1, dumpConfig_utils.ss(output), cell_format)
                         row += 1
-            
+
             row = 1
             for map in config[context]['servicemappings']:
                 if row % 2 == 1:
@@ -246,7 +245,7 @@ class services:
                         cell_format = workbook.add_format({'bg_color': '#BBBBBB', 'text_wrap': True})
                     xl_addresses.write(row, col, dumpConfig_utils.ss(output), cell_format)
                 row += 1
-            if 'shared' in config:    
+            if 'shared' in config:
                 for address in sh_addr:
                     if address in config['shared']['addresses']:
                         for col, key in enumerate(config['shared']['addresses'][address]):
@@ -272,10 +271,10 @@ class services:
                                 cell_format = workbook.add_format({'bg_color': '#AAAAAA', 'text_wrap': True})
                             else:
                                 cell_format = workbook.add_format({'bg_color': '#999999', 'text_wrap': True})
-                            xl_addresses.write(row, col, ss(output), cell_format)
+                            xl_addresses.write(row, col, utils.ss(output), cell_format)
                         row += 1
             row = 1
-                    
+
             for service in config[context]['services']:
                 for col, key in enumerate(config[context]['services'][service]):
                     if key == 'svcObjType':
@@ -291,7 +290,7 @@ class services:
                         else:
                             output = config[context]['services'][service][key]
                     elif key == 'svcObjIpType':
-                        if config[context]['services'][service][key] == '6':    
+                        if config[context]['services'][service][key] == '6':
                             output = 'TCP'
                         elif config[context]['services'][service][key] == '17':
                             output = 'UDP'
@@ -300,10 +299,10 @@ class services:
                         else:
                             output = 'Other'
                     else:
-                        #debug('col:' + str(col))
-                        #debug('key: ' + str(key))
-                        #debug(config[context]['services'][service])
-                        #debug(config[context]['services'][service][key])
+                        # debug('col:' + str(col))
+                        # debug('key: ' + str(key))
+                        # debug(config[context]['services'][service])
+                        # debug(config[context]['services'][service][key])
                         if key in config[context]['services'][service]:
                             output = str(config[context]['services'][service][key])
                         pass
@@ -313,7 +312,7 @@ class services:
                         cell_format = workbook.add_format({'bg_color': '#BBBBBB', 'text_wrap': True})
                     xl_services.write(row, col, dumpConfig_utils.ss(output), cell_format)
                 row += 1
-            if 'shared' in config:    
+            if 'shared' in config:
                 for service in sh_svc:
                     if service in config['shared']['services']:
                         for col, key in enumerate(config['shared']['services'][service]):
@@ -330,7 +329,7 @@ class services:
                                 else:
                                     output = config['shared']['services'][service][key]
                             elif key == 'svcObjIpType':
-                                if config['shared']['services'][service][key] == '6':    
+                                if config['shared']['services'][service][key] == '6':
                                     output = 'TCP'
                                 elif config['shared']['services'][service][key] == '17':
                                     output = 'UDP'
@@ -339,39 +338,33 @@ class services:
                                 else:
                                     output = 'Other'
                             else:
-                                output = str(config['shared']['services'][service][key])  
+                                output = str(config['shared']['services'][service][key])
                             if row % 2 == 1:
                                 cell_format = workbook.add_format({'bg_color': '#AAAAAA', 'text_wrap': True})
                             else:
-                                cell_format = workbook.add_format({'bg_color': '#999999', 'text_wrap': True})                          
+                                cell_format = workbook.add_format({'bg_color': '#999999', 'text_wrap': True})
                             xl_services.write(row, col, dumpConfig_utils.ss(output), cell_format)
                         row += 1
-            
+
             workbook.close()
 
-# sonicwall 14620
-
-    # def get_sonicwall_exp(self,options.sonicwallip):
-    #     pass
-    
-    
-    def service_migration(self,options):
-        #log("!-- Retrieving sonicwall config") 
+    def service_migration(self, options):
+        # log("!-- Retrieving sonicwall config")
         if not options.web and (options.username == None or options.password == None):
             options.username, options.password = get_creds()
-        config=sonicwall_utils.get_sonicwall_exp(options.sonicwallip)
+        config = sonicwall_utils.get_sonicwall_exp(options.sonicwallip)
 
-        config['shared']={}
-        config['shared']['config']={}
-        config['shared']['config']['name']=''
-        config['shared']['config']['fw_type']=''
-        config['shared']['config']['version']=''
-        config['shared']['config']['mgmtip']=''
-        config['shared']['addresses']={}
-        config['shared']['services']={}
-        config['shared']['policies']={}  #return_policy
-        config['shared']['nat']={}
-        config['shared']['apps']={}
-        config['shared']['addressmappings']={}
-        config['shared']['servicemappings']={}
-        config['shared']['logprofiles']={}
+        config['shared'] = {}
+        config['shared']['config'] = {}
+        config['shared']['config']['name'] = ''
+        config['shared']['config']['fw_type'] = ''
+        config['shared']['config']['version'] = ''
+        config['shared']['config']['mgmtip'] = ''
+        config['shared']['addresses'] = {}
+        config['shared']['services'] = {}
+        config['shared']['policies'] = {}  # return_policy
+        config['shared']['nat'] = {}
+        config['shared']['apps'] = {}
+        config['shared']['addressmappings'] = {}
+        config['shared']['servicemappings'] = {}
+        config['shared']['logprofiles'] = {}

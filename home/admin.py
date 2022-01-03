@@ -1,11 +1,11 @@
 
 from __future__ import unicode_literals
 from django.contrib import admin
-from .models import large,jobLog
+from .models import Large,JobLog
 
 # Register your models here.
-admin.site.register(large)
-admin.site.register(jobLog)
+admin.site.register(Large)
+admin.site.register(JobLog)
 
 # from __future__ import unicode_literals
 # import logging
