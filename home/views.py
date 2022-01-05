@@ -76,7 +76,6 @@ def pipeline(request):
 def bulk_address(request):
     options = {}
     if request.method == 'POST':
-
         options['target_ip'] = request.POST.get('target_ip')
         options['username'] = request.POST.get('username')
         options['password'] = request.POST.get('password')
@@ -88,7 +87,7 @@ def bulk_address(request):
         options['readOnly'] = True if request.POST.get(
             'readonly') == 'on' else False
 
-        status = "InProgress"
+        status = "In Progress"
         data_entry = Large(createdBy=request.user.username,
                            createdAt=timezone.now(),
                            jobType="bulkaddress",
@@ -105,12 +104,7 @@ def bulk_address(request):
         data_entry.save()
 
         obj = Large.objects.latest('id')
-        result = Services.service_nexpose(options)
-
-        # Todo : Write it to the log.
-        # for ip in target_ip.split(','):
-        #     job_entry = jobLog(jobid=obj, ip=ip, status=status)
-        #     job_entry.save()
+        # result = Services.service_nexpose(options, data_entry.id)
 
         return redirect('dashboard')
 
@@ -121,7 +115,6 @@ def bulk_address(request):
 def migrations(request):
     options = {}
     if request.method == 'POST':
-
         options['username'] = request.POST.get('username')
         options['password'] = request.POST.get('password')
         options['target_ip'] = request.POST.get('target_ip')
@@ -142,8 +135,8 @@ def migrations(request):
         messages.success(request,
                          'Job has launched successfully',
                          extra_tags='alert')
-        result = Services.service_nexpose(options)
 
+        status = "In Progress"
         data_entry = Large(createdBy=request.user.username,
                            createdAt=timezone.now(),
                            jobType="migrations",
@@ -156,8 +149,12 @@ def migrations(request):
                            zoneMapping=options['zoneMapping'],
                            removeDupes=options['removeDupes'],
                            removeUnused=options['removeUnused'],
-                           checkPointExpansion=options['checkPointExpansion'])
+                           checkPointExpansion=options['checkPointExpansion'],
+                           status=status)
         data_entry.save()
+
+        obj = Large.objects.latest('id')
+        # result = Services.service_migration(options, obj)
 
         return redirect('dashboard')
 
@@ -168,7 +165,6 @@ def migrations(request):
 def dump_config(request):
     options = {}
     if request.method == 'POST':
-
         options['username'] = request.POST.get('username')
         options['password'] = request.POST.get('password')
         options['target_ip'] = request.POST.get('target_ip')
@@ -179,17 +175,20 @@ def dump_config(request):
                          'Job has launched successfully',
                          extra_tags='alert')
 
-        # result = Services.dump_config(options)
-        # print(result)
-
+        status = "In Progress"
         data_entry = Large(createdBy=request.user.username,
                            createdAt=timezone.now(),
                            jobType="dumpConfig",
                            username=options['username'],
                            password=options['password'],
                            targetID=options['target_ip'],
-                           enableDebugOutput=options['debug_enable'])
+                           enableDebugOutput=options['debug_enable'],
+                           status=status)
         data_entry.save()
+
+        obj = Large.objects.latest('id')
+        # result = Services.dump_config(options, obj)
+        # print(result)
 
         return redirect('dashboard')
     return render(request, 'home/dumpConfig_form.html')
@@ -215,6 +214,7 @@ def rule_search(request):
                          'Job has launched successfully',
                          extra_tags='alert')
 
+        status = "In Progress"
         data_entry = Large(
             createdBy=request.user.username,
             createdAt=timezone.now(),
@@ -224,9 +224,15 @@ def rule_search(request):
             targetID=options['target_ip'],
             enableDebugOutput=options['enableDebugOutput'],
             doNotMatchAnyAddress=options['doNotMatchAnyAddress'],
-            doNotMatchAnyService=options['doNotMatchAnyService'])
+            doNotMatchAnyService=options['doNotMatchAnyService'],
+            status=status)
         data_entry.save()
 
+        obj = Large.objects.latest('id')
+
+        # async:
+        # Services.service_rule_search(options, data_entry.id)
+        Services.ganesh(data_entry.id)
         return redirect('dashboard')
 
     return render(request, 'home/ruleSearch_form.html')

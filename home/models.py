@@ -17,6 +17,7 @@ User = get_user_model()
 
 
 class Large(models.Model):
+    id = models.BigAutoField(primary_key=True)
     createdBy = models.CharField(max_length=50)
     createdAt = models.DateTimeField(auto_now_add=True)
     jobType = models.CharField(max_length=100)
@@ -45,6 +46,7 @@ class Large(models.Model):
 
 class JobLog(models.Model):
     jobid = models.ForeignKey(Large, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50, null=True)
     ip = models.CharField(max_length=200)
     log = models.TextField(null=True)
     status = models.CharField(max_length=10, null=True)

@@ -65,30 +65,30 @@ def get_ports_of(services, service_object, config):
             elif services[service_object]['svcObjPort1'] == 'alternative-host':
                 services[service_object]['svcObjPort1'] = '6'
             elif services[service_object][
-                    'svcObjPort1'] == 'mobile-registration-reply':
+                'svcObjPort1'] == 'mobile-registration-reply':
                 services[service_object]['svcObjPort1'] = '36'
             elif services[service_object]['svcObjPort1'] in [
-                    'mobile-registration-request', 'mobile-host-redirect',
-                    'datagram-error', 'traceroute', 'address-mask-reply',
-                    'address-mask-request', 'info-reply', 'info-request',
-                    'timestamp-reply', 'timestamp', 'parameter-problem'
+                'mobile-registration-request', 'mobile-host-redirect',
+                'datagram-error', 'traceroute', 'address-mask-reply',
+                'address-mask-request', 'info-reply', 'info-request',
+                'timestamp-reply', 'timestamp', 'parameter-problem'
             ]:
                 services[service_object]['svcObjPort1'] = '99'
                 services[service_object]['svcObjPort2'] = '99'
 
             if services[service_object][
-                    'svcObjPort2'] == 'echo-request':  ## needed to fix Port2 value for icmp objects read in via sonicwall API
+                'svcObjPort2'] == 'echo-request':  ## needed to fix Port2 value for icmp objects read in via sonicwall API
                 services[service_object]['svcObjPort2'] = '8'
             elif services[service_object]['svcObjPort2'] == 'echo-reply':
                 services[service_object]['svcObjPort2'] = '0'
             elif services[service_object]['svcObjPort2'] == 'alternative-host':
                 services[service_object]['svcObjPort2'] = '6'
             elif services[service_object][
-                    'svcObjPort2'] == 'mobile-registration-reply':
+                'svcObjPort2'] == 'mobile-registration-reply':
                 services[service_object]['svcObjPort2'] = '36'
             elif services[service_object]['svcObjPort2'] in [
-                    'mobile-registration-request', 'mobile-host-redirect',
-                    'datagram-error', 'traceroute'
+                'mobile-registration-request', 'mobile-host-redirect',
+                'datagram-error', 'traceroute'
             ]:
                 services[service_object]['svcObjPort2'] = '99'
             try:
@@ -108,7 +108,7 @@ def get_ports_of(services, service_object, config):
                 else:
                     portlist.extend([int(ports)])
         elif services[service_object][
-                'svcObjType'] == '4':  ## add support to get port list for service group
+            'svcObjType'] == '4':  ## add support to get port list for service group
             pass
         return portlist
 
@@ -133,21 +133,21 @@ def expand_service(service_dict,
                     expanded_services.append(service_object)
                 if service_object in service_map:
                     for member in service_map[service_dict[service_object]
-                                              ['svcObjId']]:
+                    ['svcObjId']]:
                         for members in expand_service(service_dict, member,
                                                       service_map, config,
                                                       inc_group):
                             expanded_services.append(members)
         elif service_object in config['shared']['services']:
             if config['shared']['services'][service_object][
-                    'svcObjIpType'] != '0':
+                'svcObjIpType'] != '0':
                 expanded_services.append(service_object)
             else:
                 if inc_group:
                     expanded_services.append(service_object)
                 if service_object in config['shared']['servicemappings']:
                     for member in config['shared']['servicemappings'][config[
-                            'shared']['services'][service_object]['svcObjId']]:
+                        'shared']['services'][service_object]['svcObjId']]:
                         for members in expand_service(
                                 config['shared']['services'], member,
                                 config['shared']['servicemappings'], config,
@@ -182,15 +182,15 @@ def expand_address(address_dict,
         if address_object in config['shared']['addresses']:
             if 'addrObjType' in config['shared']['addresses'][address_object]:
                 if config['shared']['addresses'][address_object][
-                        'addrObjType'] != '8':
+                    'addrObjType'] != '8':
                     expanded_addresses.append(address_object)
                 else:
                     if inc_group:
                         expanded_addresses.append(address_object)
                     if address_object in address_map:
                         for group_members in config['shared'][
-                                'addressesmappings'][config['shared'][
-                                    'addresses'][address_object]['addrObjId']]:
+                            'addressesmappings'][config['shared'][
+                            'addresses'][address_object]['addrObjId']]:
                             for group_member in expand_address(
                                     config['shared']['addresses'],
                                     group_members,
@@ -206,18 +206,12 @@ def find_matching_rules2(config,
                          params_list,
                          contextnames,
                          options,
+                         job_id,
                          modify=None):
-    ## redo this using IPset like I do for inverse matching
-
-    ##CHANGEME - move excluded addresses to a CLI option
-
     excluded_addresses = []
     excluded_addresses = options.excludeaddress
     excluded_src_networks = IPSet([addr for addr in options.excludesrcnetwork])
     excluded_dst_networks = IPSet([addr for addr in options.excludedstnetwork])
-    # log(excluded_networks)
-
-    # ['Net_10.0.0.0', 'DellNets', 'glbl-Dell_Internal_Networks', 'DellNets-Only', 'Dell-10.0.0.0', 'Net10', 'Dell-DMS-Users', 'DellAssignedNets-NonDell', 'DC-Networks']
 
     for params in params_list:
         if params.count(',') != 2:
@@ -240,7 +234,7 @@ def find_matching_rules2(config,
 
         if source.lower() == 'any':
             source = '0.0.0.0/0'
-        if re.findall('/', source) != []:
+        if re.findall('/', source):
             src_ipaddr, src_netmask = source.split('/')
         else:
             src_ipaddr = source
@@ -283,7 +277,7 @@ def find_matching_rules2(config,
                     source_match_type = None
                     dest_match_type = None
                     if 'policySrcNegate' in config[context]['policies'][
-                            policy]:
+                        policy]:
                         negate_source = config[context]['policies'][policy][
                             'policySrcNegate']
                     else:
@@ -292,7 +286,7 @@ def find_matching_rules2(config,
                         pass
                         # log('SOURCE NEGATED Idx: {} UI: {} '.format(str(config[context]['policies'][policy]['policyNum']), str(config[context]['policies'][policy]['policyUiNum'])))
                     if 'policyDstNegate' in config[context]['policies'][
-                            policy]:
+                        policy]:
                         negate_dest = config[context]['policies'][policy][
                             'policyDstNegate']
                     else:
@@ -323,9 +317,9 @@ def find_matching_rules2(config,
                                 source_addr = ['Any']
                         else:
                             for source_index in config[context]['policies'][
-                                    policy]['policySrcNet']:
+                                policy]['policySrcNet']:
                                 if source_index.lower() in [
-                                        'any', ''
+                                    'any', ''
                                 ] and options.zero_network:
                                     found_in_source = True
                                     source_addr = ['Any']
@@ -337,12 +331,12 @@ def find_matching_rules2(config,
                                         for expanded_index in expand_address(
                                                 config[context]['addresses'],
                                                 config[context]['addresses']
-                                            [source_index]['addrObjId'],
+                                                [source_index]['addrObjId'],
                                                 config[context]
-                                            ['addressmappings'], config):
+                                                ['addressmappings'], config):
                                             if (expanded_index
                                                     in config[context]
-                                                ['addresses']):
+                                                    ['addresses']):
                                                 policyIPv4_list.extend(
                                                     config[context]
                                                     ['addresses']
@@ -358,7 +352,7 @@ def find_matching_rules2(config,
                                         for expanded_index in expand_address(
                                                 shared['addresses'],
                                                 shared['addresses']
-                                            [source_index]['addrObjId'],
+                                                [source_index]['addrObjId'],
                                                 shared['addressmappings'],
                                                 config):
                                             policyIPv4_list.extend(
@@ -368,13 +362,12 @@ def find_matching_rules2(config,
                                             prefix = '*'
                                     else:
                                         if source_index.lower() not in [
-                                                'any', ''
+                                            'any', ''
                                         ]:
                                             log('UNKNOWN SOURCE "{}"'.format(
                                                 source_index))
                                         try:
-                                            if re.findall('-',
-                                                          source_index) != []:
+                                            if re.findall('-', source_index):
                                                 first, last = source_index.split(
                                                     '-')
                                                 for x in ipaddress.summarize_address_range(
@@ -385,12 +378,11 @@ def find_matching_rules2(config,
                                                     policyIPv4_list.extend([x])
                                                     debug(
                                                         'Adding Range to policy list {}'
-                                                        .format(x))
+                                                            .format(x))
                                             else:
                                                 first = source_index
                                                 last = source_index
-                                                if re.findall('/',
-                                                              first) == []:
+                                                if not re.findall('/', first):
                                                     first = first + '/32'
                                                 policyIPv4_list.extend([
                                                     ipaddress.IPv4Network(
@@ -398,7 +390,7 @@ def find_matching_rules2(config,
                                                 ])
                                                 debug(
                                                     'Adding network/host to policy list {}'
-                                                    .format(x))
+                                                        .format(x))
                                         except Exception as e:
                                             # if source_index.lower() not in ['any', '']: log('UNKNOWN SOURCE "{}"'.format(source_index))
                                             log('Exception {} handling unknown source : {}'
@@ -414,8 +406,8 @@ def find_matching_rules2(config,
                                 # if excluded_networks not in polSet:
                                 if excluded_src_networks & polSet == IPSet([]):
                                     if (srcSet & polSet) or (
-                                        (source_index.lower() == 'any'
-                                         or source.lower() == '0.0.0.0/0')
+                                            (source_index.lower() == 'any'
+                                             or source.lower() == '0.0.0.0/0')
                                             and options.zero_network):
                                         if srcSet == polSet:
                                             source_match_type = 'Exact'
@@ -436,9 +428,7 @@ def find_matching_rules2(config,
                                 else:
                                     source_addr = config[context]['policies'][
                                         policy]['policySrcNet']
-                                    debug(
-                                        'Excluded network found in source - skipping rule'
-                                    )
+                                    debug('Excluded network found in source - skipping rule')
                         if negate_source:
                             found_in_source = not found_in_source
                         if found_in_source:
@@ -456,35 +446,33 @@ def find_matching_rules2(config,
                                     dest_addr = ['Any']
                             else:
                                 for dest_index in config[context]['policies'][
-                                        policy]['policyDstNet']:
+                                    policy]['policyDstNet']:
                                     # print(dest_index)
                                     if dest_index.lower() in [
-                                            'any', ''
+                                        'any', ''
                                     ] and options.zero_network:
                                         found_in_dest = True
                                         dest_addr = ['Any']
                                         break
                                     policyIPv4_list = []
                                     if dest_index in config[context][
-                                            'addresses'] or dest_index.lower(
-                                            ) in ['any', '']:
+                                        'addresses'] or dest_index.lower(
+                                    ) in ['any', '']:
                                         dest_addr = ['']
                                         pass
                                     else:
                                         print('{} not found in config'.format(
                                             dest_index))
                                     if dest_index not in excluded_addresses:
-                                        if (dest_index in config[context]
-                                            ['addresses']):
+                                        if (dest_index in config[context]['addresses']):
                                             for expanded_index in expand_address(
                                                     config[context]
-                                                ['addresses'], config[context]
-                                                ['addresses'][dest_index]
-                                                ['addrObjId'], config[context]
-                                                ['addressmappings'], config):
+                                                    ['addresses'], config[context]
+                                                    ['addresses'][dest_index]
+                                                    ['addrObjId'], config[context]
+                                                    ['addressmappings'], config):
                                                 if (expanded_index
-                                                        in config[context]
-                                                    ['addresses']):
+                                                        in config[context]['addresses']):
                                                     policyIPv4_list.extend(
                                                         config[context]
                                                         ['addresses']
@@ -504,7 +492,7 @@ def find_matching_rules2(config,
                                             for expanded_index in expand_address(
                                                     shared['addresses'],
                                                     shared['addresses']
-                                                [dest_index]['addrObjId'],
+                                                    [dest_index]['addrObjId'],
                                                     shared['addressmappings'],
                                                     config):
                                                 policyIPv4_list.extend(
@@ -516,23 +504,23 @@ def find_matching_rules2(config,
                                         #
                                         else:
                                             if dest_index.lower() not in [
-                                                    'any', ''
+                                                'any', ''
                                             ]:
                                                 log('UNKNOWN DEST in policy {} "{}"'
                                                     .format(
-                                                        config[context]
-                                                        ['policies'][policy]
-                                                        ['policyName'],
-                                                        dest_index))
+                                                    config[context]
+                                                    ['policies'][policy]
+                                                    ['policyName'],
+                                                    dest_index))
                                             try:
                                                 if re.findall('-', dest_index):
                                                     first, last = dest_index.split(
                                                         '-')
                                                     for x in ipaddress.summarize_address_range(
                                                             ipaddress.
-                                                            IPv4Address(first),
+                                                                    IPv4Address(first),
                                                             ipaddress.
-                                                            IPv4Address(last)):
+                                                                    IPv4Address(last)):
                                                         policyIPv4_list.extend(
                                                             [x])
                                                 else:
@@ -556,10 +544,10 @@ def find_matching_rules2(config,
                                     # log(polSet)
                                     # log('intersection', excluded_networks & polSet)
                                     if excluded_dst_networks & polSet == IPSet(
-                                        []):
+                                            []):
                                         if (polSet & destSet) or (
-                                            (dest_index.lower() == 'any'
-                                             or dest.lower() == '0.0.0.0/0')
+                                                (dest_index.lower() == 'any'
+                                                 or dest.lower() == '0.0.0.0/0')
                                                 and options.zero_network):
                                             if destSet == polSet:
                                                 dest_match_type = 'Exact'
@@ -576,7 +564,7 @@ def find_matching_rules2(config,
                                             found_in_dest = True
                                             dest_addr = config[context][
                                                 'policies'][policy][
-                                                    'policyDstNet']
+                                                'policyDstNet']
                                             dest_found_index.append(dest_index)
                                             if dest_match_type == 'Exact':
                                                 debug(policyIPv4_list)
@@ -596,18 +584,18 @@ def find_matching_rules2(config,
                             # verify that get port of icmp returns "any"
                             if (config[context]['policies'][policy]
                                 ['policyDstSvc'] == ['']
-                                    and options.zero_service
-                                ) or ([
-                                    x.lower() for x in config[context]
-                                    ['policies'][policy]['policyDstSvc']
-                                ] == ['any'] and options.zero_service
-                                      ) or config[context]['policies'][policy][
-                                          'policyDstSvc'] == [
-                                              'application-default'
-                                          ]:
+                                and options.zero_service
+                            ) or ([
+                                      x.lower() for x in config[context]
+                                ['policies'][policy]['policyDstSvc']
+                                  ] == ['any'] and options.zero_service
+                            ) or config[context]['policies'][policy][
+                                'policyDstSvc'] == [
+                                'application-default'
+                            ]:
                                 found_in_service = True
                                 if config[context]['policies'][policy][
-                                        'policyDstSvc'] == ['']:
+                                    'policyDstSvc'] == ['']:
                                     dest_service = ['any']
                                 else:
                                     dest_service = config[context]['policies'][
@@ -617,16 +605,15 @@ def find_matching_rules2(config,
                                 dest_service = config[context]['policies'][
                                     policy]['policyDstSvc']
                             else:
-                                for dest_index in config[context]['policies'][
-                                        policy]['policyDstSvc']:
+                                for dest_index in config[context]['policies'][policy]['policyDstSvc']:
                                     if (dest_index
                                             in config[context]['services']):
                                         for expanded_index in expand_service(
                                                 config[context]['services'],
                                                 config[context]['services']
-                                            [dest_index]['svcObjId'],
+                                                [dest_index]['svcObjId'],
                                                 config[context]
-                                            ['servicemappings'], config):
+                                                ['servicemappings'], config):
                                             policy_prot = get_prot_of(
                                                 config[context]['services'],
                                                 expanded_index, config)
@@ -640,19 +627,19 @@ def find_matching_rules2(config,
                                                      prot.lower() == 'any') and
                                                     (int(portnum)
                                                      in policy_ports)) or (
-                                                         dest_index.lower()
-                                                         == 'any' and
-                                                         options.zero_network
-                                                     ) or (
-                                                         service.lower()
-                                                         == 'any/any' and
-                                                         options.zero_network):
+                                                        dest_index.lower()
+                                                        == 'any' and
+                                                        options.zero_network
+                                                ) or (
+                                                        service.lower()
+                                                        == 'any/any' and
+                                                        options.zero_network):
                                                     if found_in_service == False:
                                                         found_in_service = True
                                                         dest_service = config[
                                                             context]['policies'][
-                                                                policy][
-                                                                    'policyDstSvc']
+                                                            policy][
+                                                            'policyDstSvc']
                                                         break
                                             except Exception as e:
                                                 print(prot.lower())
@@ -662,11 +649,11 @@ def find_matching_rules2(config,
                                                 print(expanded_index)
                                                 log(e)
 
-                                    if (dest_index in shared['services']):
+                                    if dest_index in shared['services']:
                                         for expanded_index in expand_service(
                                                 shared['services'],
                                                 shared['services'][dest_index]
-                                            ['svcObjId'],
+                                                ['svcObjId'],
                                                 shared['servicemappings'],
                                                 config):
                                             policy_prot = get_prot_of(
@@ -681,9 +668,9 @@ def find_matching_rules2(config,
                                             # if end_port=='': end_port='0'
                                             if ((prot.lower() == policy_prot
                                                  or prot.lower() == 'any')
-                                                    and portnum in policy_ports
-                                                ) or dest_index.lower(
-                                                ) == 'any' or (
+                                                and portnum in policy_ports
+                                            ) or dest_index.lower(
+                                            ) == 'any' or (
                                                     service.lower()
                                                     == 'any/any'
                                                     and options.zero_network):
@@ -691,72 +678,54 @@ def find_matching_rules2(config,
                                                     found_in_service = True
                                                     dest_service = config[
                                                         context]['policies'][
-                                                            policy][
-                                                                'policyDstSvc']
+                                                        policy][
+                                                        'policyDstSvc']
                                                     break
 
                         if found_in_source and found_in_dest and found_in_service and (
                                 options.matchtypes in [['all'], ['any']] or
-                            (source_match_type.lower()
-                             in [x.lower() for x in options.matchtypes]
-                             or source_match_type.lower() == 'any') and
-                            (dest_match_type.lower()
-                             in [x.lower() for x in options.matchtypes]
-                             or dest_match_type.lower() == 'any')):
+                                (source_match_type.lower()
+                                 in [x.lower() for x in options.matchtypes]
+                                 or source_match_type.lower() == 'any') and
+                                (dest_match_type.lower()
+                                 in [x.lower() for x in options.matchtypes]
+                                 or dest_match_type.lower() == 'any')):
                             # I believe zone/net/service is empty if "any", so temporarily set these values to variables before printing them
-                            if config[context]['policies'][policy][
-                                    'policyEnabled'] == '0':
+                            if config[context]['policies'][policy]['policyEnabled'] == '0':
                                 enabled = "."
-                            elif config[context]['policies'][policy][
-                                    'policyEnabled'] == '1':
+                            elif config[context]['policies'][policy]['policyEnabled'] == '1':
                                 if options.web or options.csv:
                                     enabled = 'Y'
                                 else:
                                     enabled = u'\u2713'
 
-                            comment = re.sub(
-                                '"', "'",
-                                str(config[context]['policies'][policy]
-                                    ['policyComment']))
-                            if 'policyUUID' in config[context]['policies'][
-                                    policy]:
-                                uuid = config[context]['policies'][policy][
-                                    'policyUUID']
-                            elif 'policyUid' in config[context]['policies'][
-                                    policy]:
-                                uuid = config[context]['policies'][policy][
-                                    'policyUid']
+                            comment = re.sub('"', "'", str(config[context]['policies'][policy]['policyComment']))
+                            if 'policyUUID' in config[context]['policies'][policy]:
+                                uuid = config[context]['policies'][policy]['policyUUID']
+                            elif 'policyUid' in config[context]['policies'][policy]:
+                                uuid = config[context]['policies'][policy]['policyUid']
                             else:
                                 uuid = 'unknown'
 
-                            if config[context]['policies'][policy][
-                                    'policyAction'] == '0':
+                            if config[context]['policies'][policy]['policyAction'] == '0':
                                 action = 'deny'
-                            elif config[context]['policies'][policy][
-                                    'policyAction'] == '1':
+                            elif config[context]['policies'][policy]['policyAction'] == '1':
                                 action = 'discard'
-                            elif config[context]['policies'][policy][
-                                    'policyAction'] == '2':
+                            elif config[context]['policies'][policy]['policyAction'] == '2':
                                 action = 'allow'
-                            elif config[context]['policies'][policy][
-                                    'policyAction'] == '3':
+                            elif config[context]['policies'][policy]['policyAction'] == '3':
                                 action = 'CltAuth'
-                            name = config[context]['policies'][policy][
-                                'policyName']
+                            name = config[context]['policies'][policy]['policyName']
 
-                            if config[context]['policies'][policy][
-                                    'policySrcZone'] == []:
+                            if not config[context]['policies'][policy]['policySrcZone']:
                                 source_zone = ['any']
                             else:
-                                source_zone = config[context]['policies'][
-                                    policy]['policySrcZone']
+                                source_zone = config[context]['policies'][policy]['policySrcZone']
 
-                            if config[context]['policies'][policy][
-                                    'policyDstZone'] == []:
+                            if not config[context]['policies'][policy]['policyDstZone']:
                                 dest_zone = ['any']
                             else:
-                                dest_zone = config[context]['policies'][
-                                    policy]['policyDstZone']
+                                dest_zone = config[context]['policies'][policy]['policyDstZone']
 
                             policymatches += 1
 
@@ -795,7 +764,7 @@ def find_matching_rules2(config,
                                 dest_services = config[context]['policies'][
                                     policy]['policyDstSvc']
                             if 'policySection' in config[context]['policies'][
-                                    policy]:
+                                policy]:
                                 section = config[context]['policies'][policy][
                                     'policySection']
                             else:
@@ -808,11 +777,13 @@ def find_matching_rules2(config,
                                     log('</font></p>')
                                     log('<table border="1" width="90%">')
                                     if config[context]['config'][
-                                            'fw_type'] == 'checkpoint':
-                                        log('<th>Enabled</th><th>Action</th><th>PolicyName</th><th>UiNum</th><th>IndexNum</th><th>Source Address</th><th>Destination Address</th><th>Service</th>'
+                                        'fw_type'] == 'checkpoint':
+                                        log(
+                                            '<th>Enabled</th><th>Action</th><th>PolicyName</th><th>UiNum</th><th>IndexNum</th><th>Source Address</th><th>Destination Address</th><th>Service</th>'
                                             )
                                     else:
-                                        log('<th>Enabled</th><th>Action</th><th>Name</th><th>Source Zone</th><th>Dest Zone</th><th>Source Address</th><th>Destination Address</th><th>Service</th>'
+                                        log(
+                                            '<th>Enabled</th><th>Action</th><th>Name</th><th>Source Zone</th><th>Dest Zone</th><th>Source Address</th><th>Destination Address</th><th>Service</th>'
                                             )
                                 if enabled != "Y":
                                     trcolor = '#aaaaaa'
@@ -827,7 +798,7 @@ def find_matching_rules2(config,
                                 ## only do src/dest zones for non-checkpoint
                                 ## for checkpoint, add ruleUI number
                                 if config[context]['config'][
-                                        'fw_type'] == 'checkpoint':
+                                    'fw_type'] == 'checkpoint':
                                     log('<td>' +
                                         str(config[context]['policies'][policy]
                                             ['policyUiNum']) + '</td>')
@@ -848,7 +819,7 @@ def find_matching_rules2(config,
                                     if source_address in source_found_index:
                                         log('<p style="color:green">{}</p><br>'
                                             .format(
-                                                url_unquote(source_address)))
+                                            url_unquote(source_address)))
                                     else:
                                         log(
                                             url_unquote(source_address) +
@@ -871,8 +842,7 @@ def find_matching_rules2(config,
                                 with codecs.open(options.csv, 'a+',
                                                  'utf-8') as outfile:
                                     if policymatches == 1:  ## this is to print a header line
-                                        if config[context]['config'][
-                                                'fw_type'] == 'checkpoint':
+                                        if config[context]['config']['fw_type'] == 'checkpoint':
                                             outfile.write(
                                                 'Context,Enabled,Action,PolicyName,Section,UiNum,IndexNum,Source Address,Destination Address,Service,Comment,UUID\n'
                                             )
@@ -894,7 +864,7 @@ def find_matching_rules2(config,
                                     ## only do src/dest zones for non-checkpoint
                                     ## for checkpoint, add ruleUI number
                                     if config[context]['config'][
-                                            'fw_type'] == 'checkpoint':
+                                        'fw_type'] == 'checkpoint':
                                         outfile.write('"{}",'.format(
                                             str(section)))
                                         outfile.write('"{}",'.format(
@@ -906,8 +876,7 @@ def find_matching_rules2(config,
                                     # else:
 
                                     outfile.write('"')
-                                    if config[context]['config'][
-                                            'fw_type'] != 'checkpoint':
+                                    if config[context]['config']['fw_type'] != 'checkpoint':
                                         for source_zone in source_zones:
                                             outfile.write('{}'.format(
                                                 url_unquote(source_zone)))
@@ -966,8 +935,9 @@ def find_matching_rules2(config,
                                 if policymatches == 1:
                                     log('Context : ' + context)
                                     if config[context]['config'][
-                                            'fw_type'] == 'checkpoint':
-                                        log('{:2.2s} | {:8.8s} | {:15.15s} | {:30.30s} | {:8.8s} | {:8.8s} | {:10.10s} | {:60.60s} | {:10.10s} | {:40.40s} | {:40.40s}'
+                                        'fw_type'] == 'checkpoint':
+                                        log(
+                                            '{:2.2s} | {:8.8s} | {:15.15s} | {:30.30s} | {:8.8s} | {:8.8s} | {:10.10s} | {:60.60s} | {:10.10s} | {:40.40s} | {:40.40s}'
                                             .format('En', 'Action', 'CMA',
                                                     'Policy Name', 'Rule UI#',
                                                     'Rule Idx', 'Src_match',
@@ -976,7 +946,8 @@ def find_matching_rules2(config,
                                                     'Destination Address',
                                                     'Service'))
                                     else:
-                                        log('{:2.2s} | {:8.8s} | {:30.30s} | {:20.20s} | {:20.20s} | {:10.10s} | {:60.60s} | {:10.10s} | {:40.40s} | {:40.40s}'
+                                        log(
+                                            '{:2.2s} | {:8.8s} | {:30.30s} | {:20.20s} | {:20.20s} | {:10.10s} | {:60.60s} | {:10.10s} | {:40.40s} | {:40.40s}'
                                             .format('En', 'Action',
                                                     'Rule Name', 'Source Zone',
                                                     'Destination Zone',
@@ -1020,9 +991,10 @@ def find_matching_rules2(config,
                                         dstprefix = '*'
                                     if index == 0:
                                         if config[context]['config'][
-                                                'fw_type'] == 'checkpoint':
-                                            log('{:2.2s} | {:8.8s} | {:15.15s} | {:30.30s} | {:8.8s} | {:8.8s} | {:10.10s} | {:1.1s}{:60.60s} | {:10.10s} | {:1.1s}{:40.40s} | {:40.40s}'
-                                                .format(
+                                            'fw_type'] == 'checkpoint':
+                                            log(
+                                                '{:2.2s} | {:8.8s} | {:15.15s} | {:30.30s} | {:8.8s} | {:8.8s} | {:10.10s} | {:1.1s}{:60.60s} | {:10.10s} | {:1.1s}{:40.40s} | {:40.40s}'
+                                                    .format(
                                                     enabled, action, context,
                                                     url_unquote(name),
                                                     str(config[context]
@@ -1041,8 +1013,9 @@ def find_matching_rules2(config,
                                                     url_unquote(
                                                         dest_service[0])))
                                         else:
-                                            log('{:2.2s} | {:8.8s} | {:30.30s} | {:20.20s} | {:20.20s} | {:10.10s} | {:1.1s}{:60.60s} | {:10.10s} | {:1.1s}{:40.40s} | {:40.40s}'
-                                                .format(
+                                            log(
+                                                '{:2.2s} | {:8.8s} | {:30.30s} | {:20.20s} | {:20.20s} | {:10.10s} | {:1.1s}{:60.60s} | {:10.10s} | {:1.1s}{:40.40s} | {:40.40s}'
+                                                    .format(
                                                     enabled, action,
                                                     url_unquote(name),
                                                     url_unquote(
@@ -1059,9 +1032,10 @@ def find_matching_rules2(config,
                                                         dest_service[0])))
                                     else:
                                         if config[context]['config'][
-                                                'fw_type'] == 'checkpoint':
-                                            log('{:2.2s} | {:8.8s} | {:15.15s} | {:30.30s} | {:8.8s} | {:8.8s} | {:10.10s} | {:1.1s}{:60.60s} | {:10.10s} | {:1.1s}{:40.40s} | {:40.40s}'
-                                                .format(
+                                            'fw_type'] == 'checkpoint':
+                                            log(
+                                                '{:2.2s} | {:8.8s} | {:15.15s} | {:30.30s} | {:8.8s} | {:8.8s} | {:10.10s} | {:1.1s}{:60.60s} | {:10.10s} | {:1.1s}{:40.40s} | {:40.40s}'
+                                                    .format(
                                                     '', '', '', '', '', '', '',
                                                     srcprefix,
                                                     url_unquote(tmpsrc), '',
@@ -1069,8 +1043,9 @@ def find_matching_rules2(config,
                                                     url_unquote(tmpdst),
                                                     url_unquote(tmpsvc)))
                                         else:
-                                            log('{:2.2s} | {:8.8s} | {:30.30s} | {:20.20s} | {:20.20s} | {:10.10s} | {:1.1s}{:60.60s} | {:10.10s} | {:1.1s}{:40.40s} | {:40.40s}'
-                                                .format(
+                                            log(
+                                                '{:2.2s} | {:8.8s} | {:30.30s} | {:20.20s} | {:20.20s} | {:10.10s} | {:1.1s}{:60.60s} | {:10.10s} | {:1.1s}{:40.40s} | {:40.40s}'
+                                                    .format(
                                                     '', '', '', tmpszone,
                                                     tmpdzone, '',
                                                     str(source_match_type),
@@ -1083,15 +1058,15 @@ def find_matching_rules2(config,
                                 log('-' * 250)
                                 if modify:
                                     if modify_group not in config[context][
-                                            'policies'][policy][
-                                                'policyDstNet']:
+                                        'policies'][policy][
+                                        'policyDstNet']:
                                         for addr in modify_addr:
                                             log('addelement fw_policies {} rule:{}:dst:\'\' network_objects:{}'
                                                 .format(
-                                                    url_unquote(name),
-                                                    config[context]['policies']
-                                                    [policy]['policyNum'],
-                                                    addr))
+                                                url_unquote(name),
+                                                config[context]['policies']
+                                                [policy]['policyNum'],
+                                                addr))
                                     else:
                                         log('Rule already contains group: ' +
                                             modify_group)
