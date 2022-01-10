@@ -1,0 +1,291 @@
+## This is the latest "migration" script that has been converted to Python.  It has a lot more functionality that the original bash based migration script, with the ability to read in both Sonicwall and Panorama configurations
+### New functionality includes some search routines, object expansion, dumping a firewall config into an excel spreadsheet, the ability to call the script from a web browser and more
+
+
+- 10/18/2019 - FIXED - Fixed header for checkpoint rules in the rulematch function
+- 10/18/2019 - FIXED - Fixed output for rulemodify commands
+- 10/11/2019 - FIXED - fixed bug in cip_report where group policy_matches was a single int and not a tuple, causing the report to fail..
+- 10/7/2019 - FIXED - fixed bug where inversematch cleanup commands for checkpoint was attempting to remove address objects for policy-source on policy-dest matches
+- 10/4/2019 - FIXED - policy_matches was initialized outside of context loop, so it may have included more matches in the report than needed
+- 10/3/2019 - ADDED - group modification will now take a list of master groups in the form of MASTERGROUP1,SUBGROUP1 MASTERGROUP2,SUBGROUP2
+- 10/2/2019 - ADDED - backout steps provided for inverse matching on checkpoint firewalls
+- 9/24/2019 - FIXED - displaying cmd line args should no longer display password in output.
+- 9/20/2019 - ENHANCEMENT - --save will now only save if there is more than one context
+- 9/20/2019 - ADDED - --groupmaster option to add new address objects to existing group via subgroups
+- 9/17/2019 - ENHANCEMENT - Now loads addressesV6, addressesfqdn and policyV6 objects for sonicwall
+- 9/17/2019 - FIXED - load_file was started with a set of [''] instead of an empty set []
+- 9/17/2019 - ENHANCEMENT - Rulematch now honors use of -z option to NOT match 0.0.0.0/0 / any / all address objects
+- 9/17/2019 - ENHANCEMENT - Palo/Pano configs are no longer written to disk, conversion is done in memory like Sonicwalls
+- 9/4/2019 - FIXED - Sonicwall Web conversion tool would show XLS Conversion Tab
+- 9/4/2019 - FIXED - Web based tool header always says Inverse Matching Results
+- 8/21/2019 - ENHANCED - --sw_audit now checks for SonicROM and SafeMode versions.
+- 8/19/2019 - ENHANCED - Loading a config from Sonicwall via IP should no longer create files on disk, doing this entirely in memory, to make running simultaneous scripts in same dir easier
+- 8/18/2019 - ADDED - Added --sw_reboot option to reboot Sonicwall
+- 8/15/2019 - ADDED - Added --sw-audit to audit Sonicwall Backup Created data and Uploaded firmware version -- should be expanded to query numerous configuration values
+- 8/15/2019 - ADDED - Added --sw_upload_fw and --sw_backup to create system backup and upload firmware to Sonicwall-
+- 8/13/2019 - ENHANCEMENT - create_tuples now includes subnet mask so the testing tool has more flexibility in what source or dest address to use - plan is to have test tool use last ip in range rather than first which may better detect bad subnet masks
+- 8/13/2019 - FIXED - default tuplezone change to all,all as create_tuples now needs source and destination zone names
+- 8/12/2019 - ADDED - options.management added to report on sonicwall management settings (in response to VxWorks URGENT/11 vulnerabilities)
+- 7/23/2019 - ENHANCEMENT -- Added --policynames arg to limit checkpoint --rulesearch matches to a specific policy.  This is a short term fix.  Long term solution is to load each checkpoint policy in its own context
+- 6/22/2019 - FIXED -- Rulematch was not working when parameters were something other than any, but rule was set to ['Any'] for checkpoint searches
+- 6/22/2019 - FIXED - When migrating zones, only the first interface per zone was being added to each zone.
+- 6/21//2019 - FIXED (UNTESTED) - Default route is now being migrated properly if it is set in the policy route
+-              by only doing the shutdown on the server side of the connection
+- 6/21//2019 - FIXED - NOT IN THIS SCRIPT, BUT NOTEWORTHY.  The fwtest script was having occassional issues on the server side binding a socket for the next request.  This appears to have been resolved
+-             object types, which requires changes in many parts of code.
+-             was inadequate if a "header" field was the last row of the ruleset.  A better fix would be to include the header rules during load, but would then require handling these as new policy
+- 6/21/2019 - Added a config[context]['policylen'] dictionary for Checkpoint.  This was needed as a quick fix for the SecureID rule adds, previous method of computing the last RuleID based on the PolicyNum
+- 6/19/2019 - FIXED - Log Forwaring Profile in Pan8 is completely different than Pan7.  A separate branch is now created for each version and the correct one is imported during the push.
+- 6/19/2019 - WORKAROUND - ICMP rules were being migrated over as just application type "icmp", they now have icmp, ping and traceroute included
+- 6/19/2019 - FIXED - ICMP rule migrations now have service set to application default rather than any
+- 6/19/2019 - WORKAROUND - Empty groups are not valid in Palo, so an placeholder service and address object is created, and then used for empty groups - Better fix is to verify that empty groups are not being used and to not migrate them
+- 6/19/2019 - FIXED - Interfaces of type "7" were not being migrated
+- 6/19/2019 - FIXES -- Several fixes for Pano 8 migrations
+- 6/14/2019 - ENHANCEMENT -- --pushnotemplate to skip creating and pushing templates for migration
+- 6/13/2019 - ENHANCEMENT -- Only policies with source and dest zones in the options.zonemap will be migrated
+- 6/13/2019 - FIXED -- For migrations, interface of type '7' were not being migrated. 
+- 6/11/2019 - ENHANCEMENT -- Removed source/dest zone from output of checkpoint rulematch, added context (CMA)
+- 6/5/2019 - ENHANCEMENT -- Batch mode - this allows multiple commands to be specified via a textfile, this allows multiple commands to be executed without having to keep reloading a config file
+- 6/5/2019 - ENHANCEMENT - rulematch output now includes rule UI number for checkpoint
+- 6/5/2019 - FIXED - cipmatch - in some cases the same network object was being added more than once.
+- 6/5/2019 - ENHANCEMENT - cipmatch - allow larger to smaller replacements for exact matches only
+- 5/11/2019 - ENHANCEMENT - zonemaps will now also work with sonicwall to palo conversions
+- 4/19/2019 - ENHANCEMENT - create_tuples now accepts a policy name to limit tuple creation (for checkpoints)
+- 4/19/2019 - ENHANCEMENT - get_address_of now handles IP types 99 and 91 for checkpoint
+- 4/15/2019 - FIXED - Checkpoint 'service_group' object type did not have comments and objType properly being set
+- 4/11/2019 - ADDED - Started work on the ability to migrate a Checkpoint policy from one CMA to another (re-using existing address/service objects )
+- 4/11/2019 - FIXED - All Checkpoint service object types were being set to '1' (Service Group)
+- 4/10/2019 - ADDED - Support for converting an XLS spreadsheet into Panorama rules - for Propel project/Sean Soto
+- 4/8/2019 - ADDED - Support to read in vrouter static routes (For EMC public networks routing change)
+- 4/5/2019 - ENHANCEMENT - Added --excludepartial to exclude partial matches from CIP matching
+- 4/4/2019 - FIXED - For sonicwall commands generated for CIP matching, only host addresses had the zones specified.  Added zone to range and network address objects
+- 4/2/2019 - ENHANCEMENT - Added debug function
+- 4/2/2019 - FIXED - Some output for cip_report now using url_unquote for readability
+- 4/2/2019 - FIXED - Reading in sonicwall config, mask 255.255.255.255 is now applied to all host addresses.  Some built-ins were set to 0.0.0.0
+- 4/1/2019 - ENHANCEMENT - Rulematch will now accept "any" as a protocol
+- 4/1/2019 - FIXED - Rulematch would sometimes fail if start and/or end port was blank
+- 4/1/2019 - FIXED - Output of rulematch kept printing header and seperator
+- 3/28/2019 - FIXED - Missed a replacement of checking key length with checking if key exists as part of the 3/21/19 CLEANUP change to reduce the number of keys in the change dictionary
+- 3/22/2019 - ENHANCEMENT - Changed all references of level=logging.DEBUG to level=logging.INFO - some of these may need to be reverted to debug level
+- 3/22/2019 - ENHANCEMENT - Changed default output level to 5.  This allows me to use level 6 for the user information messages I was previously using debug(7) for  and level 7 for true developer debug level output
+- 3/22/2019 - CLEANUP - Replaced all relevant instances of the print() function with log() -- HUGE RISK OF BREAKING STUFF
+- 3/21/2019 - CLEANUP - Removed blocks of commented and unused code.  reduced number of total lines from 7837 to 6798
+- 3/21/2019 - ENHANCEMENT - the change dictionary was being poplated with a lot of unecessary keys.  keys are now only added if needed, which resulted in fallout elsewhere where lengths were being used. I believe this is now all fixed
+- 3/21/2019 - ENHANCEMENT - Final Policy Match report in cipreport now print list as integers, so single quotes are removed
+- 3/21/2019 - ENHANCEMENT - Policy match rule numbers are now only tracked for checkpoint firewalls, as Sonicwall and PA do not have policy numbers
+- 3/21/2019 - ADDED - Added --expandcheckpoint CLI option to expand ImportChkpt group objects into individual members in rules
+- 3/21/2019 - ENHANCEMENT - context name for dbedit report only printed if needed
+- 3/20/2019 - ADDED - checkpoint configs now include IPset for address group properties - still need to add for sonicwall and palo alto, and to add it for policy/nat source and dest
+- 3/20/2019 - ENHANCEMENT - added policy numbers to cip report for indirect matches (groups in policy)
+- 3/19/2019 - ENHANCEMENT - cip report now contains policy numbers for direct policy matches.  it does not include indirect policy match numbers via groups
+- 3/19/2019 - FIXED - cip dbedit commands for sonicwall now include the zone in address creation
+- 3/18/2019 - REVERTED - Routines to expand Checkpoint group names imported into Sonicwall has been turned off.  This should be handled by a CLI option, as it is desirable for migrations, but undesirable for CIP matching
+- 3/18/2019 - ADDED - cipdbedit now outputs sonicwall CLI commands for creating new address objects and modifying groups (policy changes need to be done manually at this time)
+- xxxxxxxx   3/14/2019 - ENHANCEMENT - Sonicwall configuration is now read in a single pass in memory, rather than writing the unencoded file to disk -- THIS IS NOT IMPLEMENTED
+- 3/8/2019 - ENHANCEMENT - dbedit commands now include context (CMA) before the commands##
+- 3/8/2019 - ENHANCEMENT - rulematch now displays a html table in web mode
+- 3/7/2019 - ENHANCEMENT - Added framework to allow for webtabs to be something other than textarea
+- 3/7/2019 - ENHANCEMENT - Added some exception handling for loading sonicwall config via ip and checking that the temp file exists
+- 3/7/2019 - ADDED - cipsearch will not attmpt to replace a larger subnet with a smaller one.  either increase the size of the smaller network or break the larger network into smaller subnets.
+- 3/6/2019 - FIXED - rule match output now properly unquotes strings with %
+- 3/6/2019 - ENHANCEMENT - rule match will now only list matches if source and dest zones are in the used zones list
+- 3/6/2019 - ENHANCEMENT - loading sonicwall config or script config file now builds a list of used zones - zones actually assigned to an interface
+-                          to combine multiple sonicwall configs into a single file
+- 3/6/2019 - ENHANCEMENT - Sonicwall contexts are now the firewall name - this involed changes to more than 100 lines of code, with a good chance of breaking things.  This Change will allow me
+- 2/25/2019 - ADDED - Push Pano config now auto detects Pano version via API rather than relying on CLI option to be set
+- 2/21/2019 - ENHANCEMENT - Added options.mappings to allow mappings to be passed via html form.
+- 2/19/2019 - ADDED - options.checkpointcontext to provide name of checkpoint context.  This is intended to provide a value for config[''] so multiple checkpoint configs can be loaded at once.
+- 2/13/2019 - FIXED - Fixed issue with find matching policies for groups - the expanded group name was not being included in the list.
+- 2/13/2019 - FIXED - When adding template stack support for Pan8.x, I inadvertently also was adding the stack for Pan7, causing it to error.
+- 2/12/2019 - FIXED - Fixed bug causing slowness.  When moving group_policies detection to cip_match, it was running for all groups, not just the matched groups, slowing things down >20x
+- 2/7/2019 - ENHANCEDMENT - moved goup_policy search from reports to search - since this relies on config, this now allows reports to be run at a later time
+- 2/7/2019 - FIXED - Final Fix/Verify for dupe dbedit commands
+- 2/6/2019 - FIXED - reviewin was only updating address objects.  It now makes changes to related group and policy objects
+- 2/5/2019 - ENHANCEMENT - Moved Effected policies to report output
+- 2/4/2019 FIXED - policy matches did not include source/dest 
+- 2/4/2019 - FIXED - Corrected computation of UI rule number
+- 2/4/2019 - ADDED - Support to read configfile from html form
+- 2/1/2019 - FIXED - rfidx  and rlidx fixed to use either the first/last item in the matched object if they are within the searched object, otherwise use first/last of search object
+- 2/1/2019 - ADDED - dbedit now includes the list of policies that are effected as a result of the proposed changes
+- 1/30/2019 - ADDED - Sonicwall now reads in buildNum from config, as CLI commands differ between 6.1.1.7 and 6.2.5.3
+- 1/9/2019 - ADDED - Support for reading some interface information now included for Palo/Pano.  This was added so the IP address of an interface could be retrieved for NAT policies
+- 1/9/2019 - ADDED - NAT policies for Palo/Pano now mostly complete - it doesnt handle "dynamic-ip" fallback mode currently.
+- 1/8/2019 - ENHANCEMENT - changeip now copies the old address object comments to the new object and includes "WAS: $OLDOBJECTNAME$" in the comment
+- 1/8/2019 - FIXED - Some addresses were being added to groups and/or policies multiple times
+- 1/8/2019 - FIXED - Excessive '-'s in report output
+- 1/8/2019 - ENHANCEMENT - changeip now creates new address objects with the color of the old object
+- 1/8/2019 - ADDED - changeip routines now search NAT policy
+- 12/20/2018 - FIXED - Checkpoint ipv6 objects now skipped
+- 12/20/2018 - FIXED - Some issues with reading Checkpoint NAT policies fixed
+- 12/19/2018 - ADDED - Checkpoint output now also includes policy num seen in UI
+- 12/19/2018 - FIXED - policy_index in Checkpoint routines were resetting to 0 for each policy name in a "merged" .xml file
+- 12/14/2018 - ENHANCEMENT - calls to load_checkpoint now use values set via options.checkpointXXX to give greater flexibility to filenames.
+- 12/14/2018 - FIXED - Inverse matching defaulted to categorizing an address type to group if it wasnt of type host/network/range. now ensures that it is type 8, otherwise it puts in the address type value (mostly for the various checkpoint types I don't yet handle)
+- 12/14/2018 - FIXED - skip blank lines of inversematch params
+- 12/13/2018 - FIXED - get_address_of fixed to handle palo fqdn objects gracefully
+- 12/13/2018 - FIXED - expand_address and expand_service, get_prot_of, get_port_of, get_address_of now supports shared objects
+- 12/13/2018 - FIXED - Find matching rules - had issues with temp objects, application-default as service type, IP ranges, etc.
+- 12/13/2018 - ADDED - Support to read Checkpoint and Sonicwall NAT config
+- 11/7/2018 - ADDED - Download links for each textarea in the tabs
+- 11/7/2018 - REMOVED - "--inversedryrun" no longer needed, as we now need to explicitly select --inverseexecute to push commands
+- 11/7/2018 - FIXED - Inverse commands for address-group was attempting to delete it from the /address/ xpath -- changed to "/address-group"
+- 11/6/2018 - ADDED - "--inverseexecute" added to push inverse commands to panorama (sonicwall support to be added at another time)
+- 11/6/2018 - ADDED - "--inversestats" added to show statistics of inverse operations
+- 11/6/2018 - ENHANCEMENT - Output in "web" mode is now tabbed..  A list of tabs is generated based on command line params
+- 11/2/2018 - Added - "--pan8" command line option.  this is used during a configuration push, as pan8 requires template stacks, and thus a different process when pushing a config
+- 11/1/2018 - ENHANCEMENT - WORK IN PROGRESS - building a list of arguments from form to pass to argparse, so that all argparse options can now be passed via forms without "special" handling
+- 11/1/2018 - FIXED get_address_of now returns 0.0.0.0/0 for an empty address object - this was happening when generating virtual router xml as pbrObjDefGw was sometimes blank.  Also modified those routines to skip empty entries
+- 10/31/2018 - ADDED - options.inverseload and options.inversesave added to save match results
+- 10/30/2018 - ENHANCEMENT - made inverse_address_cleanup and inverse_rule_cleanup functions
+- 10/25/2018 - ENHANCEMENT - inversedisable and inversedelete will now only work against "ALLOW" rules, so that DENY rules are not inadvertently removed.
+- 10/25/2018 - ADDED - stats now provided as part of inversematching actions
+- 10/25/2018 - FIXED - get_palo_config_https now uses urllib.parse.quote for password as some special characters would cause auth to fail.
+- 10/24/2018 - ENHANCEMENT - for options.inversedelete, make sure rule is disabled before deleting
+- 10/24/2018 - ADDED - For the inversematch options mentioned above, the script will attempt to perform the needed cleanup actions directly to Panorama via the API (unless options.inversedryrun is used)
+- 10/24/2018 - ADDED - Several inversematch features have been added and tested over the last several days - options inversedisable, inversedelete and inverseaddressdelete and inversedryrun have been added.
+- 10/24/2018 - ENHANCEMENT - options.context is now a list, and can be read in from file using @
+- 10/23/2018 - CHANGED - instead of using sc for inversematch routines, use urllin.parse.unquote
+- 10/22/2018 - ADDED - Added 'fw_type' and 'mgmtip' tp context 'config' dictionary  (need to determine how to set the mgmt ip for various device types)
+- 10/22/2018 - FIXED - Loading checkpoint config before panorama, since checkpoint sets 'shared' context to empty dictionaries
+- 10/18/2018 - FIXED - load_addresses in Panorama load_xml was not assigning AddrObjIp1 for hosts
+- 10/18/2018 - UPDATE - search_address now requires lists of contexts to search
+- 10/18/2018 - UPDATE - search_address updated to display ranges correctly (groups are marked as such as well)
+- 10/18/2018 - FIXED - Inverse match output now uses "name" keyword for ranges instead of "range"  need to verify this is correct for 6.2.x.x
+- 10/18/2018 - FIXED - Inverse match no longer checks auto-added rules
+- 10/16/2018 - FIXED - Output of inverse match to use sc() for spaces and quotes objects
+- 10/2/2018 - ENHANCED - 'file_list' custom action can be passed the parameter 'ipset' to generate a list of IPSet objects rather than a text list
+- 10/2/2018 - ADDED - implemented 'file_list' custom action for argparse. This can be used to specify a filename as a list to an option rather that providing the list via command line
+- 10/1/2018 - ADDED - implemented -q (quiet/NONE) and -v (verbose/DEBUG) logging options - default is INFO
+- 10/1/2018 - ADDED log() routine now added, and status print statements have been changed to use this.
+- 9/27/2018 - ADDED - Support to read in Palo Alto config (Palo/Pano mode auto detected by checking for presence of xpath ./mgt-config/devices)
+- 9/27/2018 - ENHANCEMENT - dump config now highlights shared objects with different background color
+- 9/27/2018 - ENHANCEMENT - Palo Alto (load_xml) routines functionized to allow reading in of Pano or Palo config
+- 9/27/2018 - FIXED - dump-config was not correctly displaying shared service objects
+- 9/27/2018 = CHANGED - custops.syslogservers changed to custops.logsettings to match setting in PA xml file
+- 9/27/2018 - ADDED - customops.int_mgmt_profile now used for xml output - was previously hardcoded
+- 9/27/2018 - ADDED - --dump-config now includes DstApp data as this is being read/imported
+- 9/27/2018 - ADDED - Comments should now be read for All Address, Service and Policy Objects for SW/PA/CKPT, otherwise it is set to empty
+- 9/25/2018 - FIXED - using @ previously only worked if filename specified did not contain a path
+- 9/20/2018 - ADDED - Moved options.address routine to a dedicated function called search_adresses
+- 9/20/2018 - CHANGED - Removed color from inversematch output
+- 9/11/2018 - FIXED 'shared' Palo Alto config did not have 'config' section
+- 7/6/2018 -- FIXED SNMP Trap destination was still hardcoded despite being kept in customops.trappofiles
+- 7/5/2018 -- ADDED customops.int_mgmt_profile for interface management profile name
+- 7/3/2018 -- FIXED http in interface mgmt profile
+- 7/3/2018 -- ADDED - Support to read checkpoint (R77) configuration files pulled with cp2dbweb tool
+- 6/28/2018 -- FIXED -- address mappings were not correctly being passed to create_addresses -- groups were being created with no members
+- 6/28/2018 -- FIXED -- Rulenames were previously "enhanced" to include service name.  However "sc" function was needed to clean up bad caharacters in the service name
+- 6/28/2018 -- FIXED User-ID-Agent section was not included in push commands
+- 6/26/2018 -- CHANGED options.inversematch output to display in CSV format for post-processing 
+- 6/26/2018 -- FIXED missing pushcommands in options.pushpasr
+- 6/26/2018 -- 'config' dictionary added to each context -- for now only element is 'name' to set the firewall/device-group name
+- 6/25/2018 -- Added support to "push" configuration directly to panorama
+- 6/25/2018 -- Enhanced inverse match - Performs lookups on address objects as well.  Perhaps inspection one level deep as well for groups.
+- 6/25/2018 -- Enhanced inverse match - Output is colorized
+- 6/25/2018 -- Enhanced inverse match - now determines if match if complete or partial
+- 6/25/2018 -- Added DstSvc name to rule creation
+- 6/22/2018 -- Added --inversematch routing to find intersection of a list of networks with any policy address object
+- 6/22/2018 -- Added file_to_list function to support command line parameters starting with "@"
+- 6/21/2018 -- --save/load options now also saves/loads the customops set for that "session"
+- 6/21/2018 -- Added --tuplezone/-tz command line option to specify source zone for tuples creation.
+- 6/21/2018 -- Moved dump_config to function
+- 6/21/2018 -- ENHANCEMENT - --rulematch checks that entire range of source and destnation given matches the rule (by checking first and last address in range)
+- 6/21/2018 -- FIXED --rulematch now using "in" instead of overlaps.  In ensures source is IN range of policy.  The overlaps method is misleading because it returns true if either network given overlaps with the other
+- 6/21/2018 -- FIXED (regression issue) 'options.sonicwallip' was being set as a list, rather than a single element which was causing issues reading the config.
+- 6/21/2018 -- Added alternating colors in --dump-config output
+- 6/20/2018 -- using ss() function for --dump-config to remove %20
+- 6/20/2018 -- Added "--nick" option, which is being used to help Nick A with a Santa Clara re-addressing project
+- 6/20/2018 -- FIXED built-in address types were not having their IPv4Netowrks value set.
+- 6/20/2018 -- "customops" implemented for storing all customizable options - this removes all hardocding of various configuration settings from the output routines and places them in a central location - future feature could import/export settings from/to file and create this file 
+- 6/20/2018 -- output of /shared/log-settings/snmptrap now uses values defined in options.trapprofiles rather than being hardcoded
+- 6/20/2018 -- output of /shared/log-settings/syslog now uses values defined in options.syslogservers rather than being hardcoded
+- 6/18/2018 -- Added -S command line option for service exact match search.
+- 6/18/2018 -- Fixed tuple output which was displaying the port as a range due to a previous change to a function, which now returns start and end ports.
+- 6/18/2018 -- Moved tuple file create to after removing dupes/unused objects (this allows me to compare results of each accurately)
+- 6/15/2018 -- FIXED logic in rulematch - now using .extend for policyIPv4 address list (previously it kept reassigning a single value to variable), service port matching was also broken as "port" was a string
+- 6/14/2018 -- Output added with CLI and XML API commands to perform config import and load-partial
+- 6/14/2018 -- Fixed variable names used in for loops in show_unused function
+- 6/14/2018 -- Changed "const_" variables to "options." -- will allow future improvements to pass these values via command line / web form (placeholders already added)
+- 6/14/2018 -- Hardcoded 'sonicwall' context in the options.output
+- 6/14/2018 -- Moved loading of interface mappings to options.output section
+- 6/1/2018 -- added support for reading application type 'policyApps' in Palo policies, setting this value to null in sonicwall, and including this as a new column in --dump-config
+- 5/31/2018 -- added --show-logprofiles 
+- 5/30/2018 -- added IPaddress output to -a address search option
+- 5/30/2018 -- added -A command line option to do an exact match of ip address, instead of the default "overlapping/inclusive" check
+- 5/30/2018 -- commented debug output from --load command
+- 5/4/2018 -- update description of --dump-config in argparse
+- 5/4/2018 -- rulematch updated to match empty ('') and 'any' addresses and servic-
+- Matching routines - Inverse match, rule match, cipmatc-
+- for sonicwall CIP matching, exclude built in object types, such as X5:V113 IP and X5:V113 Subne-
+- TOD-
+- inversematch routines expanded to support Panorama??
+- inversematch - do not include auto-added objects as part of result-
+- (DONE) for sonicwall dbedit, zones were added to host objects, but not network or range objects
+- (DONE) sonicwall cipmatch shows 0.0.0.0 for host masks
+- (DONE) add support to read/detect Palo Alto config instead off Panorama
+- (DONE) for cip report, include policy UI nums in the list of all policies to be updated
+- (DONE) for cip match track all needed policy details for sonicwall
+- (DONE) replace all debug level logging to informational
+- (DONE) add a debug function that logs using debug level
+- (DONE) clean up comments
+- (DONE) Change most output to "log" routines - implement syslog levels, but only use Info, Debug and Quiet, plus maybe a "http" type for web mode
+- (DONE) perform Palo conversions in memory like Sonicwall-
+- Add debug option to write retreived sonicwall and palo configs to disk for troubleshooting.
+- load_xml handle invalid credentials error message correctly (or any other unsuccessful msg for that matter)
+- changeip - partial range match is now set to trigger a warning message and needs to be done manually.  consider changing it to end or start at the same offset as the original
+- BUG - Palo/Pano port parameter in config could be a list of ports. list of ports & ranges, and other various combinations. - fix for this means that port1/port2 for each service is a list
+- consider building ipset for groups during load tim-
+- partial matches in nat policy rules wind up in the effected policies list
+- expand sonicwall audit routines to allow fields to retrieve to be customizable
+- any functionality to search and then display output should be made mode modular, in part so that results can be displayed in various formats
+- reverse engineer sonicwall 6.5 logins
+- for changeip partial matches.  consider allowing replacement if supernet is only XX bits larger than the searched network
+- merge unused rule code into this script
+- For unused objects, build initial list of unused objects by using expand_address routines, then a recursive function on these results until no more unused objects are found
+- look into converting checkpoint configuration to use policy name for context (this could potentially break existing functionality, so policyname should be kept in place for now)
+  - -- The other primary issue with this is that address/service objects will be shared objects and would need to ensure this is supported properly everywhere
+- in web mode, remove temp config file pulled from sonicwall (this should be handled simply by processing sonicwall config entirely in memory)
+- remove key output from inversematch statements 
+- for various outputs, allow specifying an output fil-
+- Allow use of "-" to mean exclude contexts
+- CHANGEME -- Virtual router - Use expand_address instead of address_mappings for dest, as dest can be any address type, not just a group
+- Finish checkpoint implementation - some address types might not be handled gracefully
+- Do not migrate zones that are not assigned to an interface - list of used zones is now available to implement this. skip importing zones and any rules based on unused zones
+- Make sure unused/dedupe routines only check rules with zones that are in use (or make this optional)
+- exit with errorcodes for various search command line options
+- load shared policies (none are currently in use in our environment)
+- log unused/dupe objects
+- enhancements for "push" - check if template/device group already exists first
+- consider JSON and/or CSV output options for numerous command line options for post processing
+- customops.rule_profile_setting is being specified in rules, but the settings don't appear to be defined -  this is simply a placeholder in the rules.
+- when doing bangalore, a rule was using "All LAN Management IP" which is a default/dynamic Sonicwall address group type. The result is a rule with "None" in its place, need to check behavior (conversion)?
+- for Add "prep" command line option to set customops
+- PARTIAL (more thought needed to determine how to do this) For inverse matching, if its not an entire match, identify the elements that do contain intersections - probably not needed
+- For rule match - determine if match is complete/partial/exact for each element -
+- (DONE) unused script has updates to read in ipv6 address objects and policies - add support for these here
+- (DONE) add support for sonicwall fqdn address objects (even if only a placeholder for now)
+- (DONE) Allow contexts to be a list
+- (DONE) for rule match - specify if "any/all" should be included or excluded from search -- uses existing options.zero_network option
+- (DONE) get_address_of - does not handle ranges correctly - now returns first/last IP address
+- (DONE) for inverse matching, generate a list of commands to execute (inverse_cmds)
+- (DONE) instead of defaulting to perform an action for inversematching, consider using an opposite options like options.inverseexecute
+- (DONE) convert EXP directly to python config in memory without an intermediary file to disk
+- (DONE) allow passing in filenames for most list based command args ()## (DONE) load NAT policies (get list of properties that are needed to do this)
+- (DONE) change['groups'] appears to be populated with a large amount of data - is this needed?
+- DONE convert options.context to list - maybe this was so that multiple contexts can be specified via command line - options.context is already converted to context, which is a list.  maybe use split on options.context to allow multiple contexts via CLI instead of numargs - MUST use numargs to handle spaces properly
+- DONE consider renaming options.syslogservers to match setting in PA xml file
+- DONE BUG -- using @ only works if its absolute first char.  allow it to work when specifying path before filename
+- DONE fix user-id configuration in xml - its not getting imported
+- DONE export applications in dump-config
+- DONE DELL variable for management profile name (currently hardcoded to Dell)
+- DONE Comments for address objects 
+- DONE (using netaddr for most checking now) Check use of ipaddress.overlaps method, as this will return true if either side overlaps with another. Consider using "in" instead.
+- DONE For inverse match determine if a policy is an entire match (all addresses in source OR destination are part of the search networks)
+- DONE With the --rulematch fix to use IN, it can be enhanced to check subnets by ensuring both the first and last IP addresses in the CIDR mask given matches the rule.
+- DONE in dump-config, use url decoding to expand %20, etc
+- DONE move dump config to a function
+- DONE For creating tuples file, specify source zone
+- DONE "-s" service search finds services within groups, etc.  need an option for an exact match only 
+- DONE "push" option to move config to panorama - 
+- DONE read various config options from file/option to set these options  
+- DONE interface mappings are not saved/loaded with --save/--load so it will need to be loaded dynamically when needed (probably just move the loading of the interface mappings to the -o (output) command as this is likely the only time its needed)

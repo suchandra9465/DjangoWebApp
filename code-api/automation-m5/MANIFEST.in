@@ -1,0 +1,5 @@
+include AUTHORS
+recursive-include docs *
+recursive-include example *
+recursive-include sample_app/templates *
+recursive-include sample_app/static *
